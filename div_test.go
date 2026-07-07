@@ -1,19 +1,15 @@
 package emerald
 
 import (
-	"os"
 	"testing"
 
+	"dbut.dev/emerald/assets"
 	"dbut.dev/sapphire/gba"
 )
 
 func TestNativeDivsi3(t *testing.T) {
-	gamepak, err := os.ReadFile("emerald.gba")
-	if err != nil {
-		t.Skip(err)
-	}
 	Install()
-	emu := gba.NewEmu(gamepak)
+	emu := gba.NewEmu(assets.ROM())
 	emu.PreBoot()
 
 	c := emu.CPU

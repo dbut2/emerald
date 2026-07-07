@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"dbut.dev/emerald/assets"
 	"dbut.dev/sapphire/gba"
 )
 
@@ -17,13 +18,9 @@ func TestEmeraldNativeSmoke(t *testing.T) {
 	if outDir == "" {
 		t.Skip("EMERALD_SMOKE_OUT not set")
 	}
-	gamepak, err := os.ReadFile("emerald.gba")
-	if err != nil {
-		t.Skip(err)
-	}
 
 	Install()
-	emu := gba.NewEmu(gamepak)
+	emu := gba.NewEmu(assets.ROM())
 	emu.LCD.ShowFPS = false
 	emu.PreBoot()
 

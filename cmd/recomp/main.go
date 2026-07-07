@@ -13,6 +13,8 @@ func main() {
 	mapPath := flag.String("map", "", "path to pokeemerald_modern.map (default: derived from -elf)")
 	module := flag.String("module", "dbut.dev/emerald", "Go module path of the output")
 	outDir := flag.String("out", "", "output directory for generated Go (empty: analyze only)")
+	gbaPath := flag.String("gba", "", "path to the ROM to split into named assets")
+	assetsDir := flag.String("assets", "", "output directory for extracted assets")
 	flag.Parse()
 
 	im, err := loadImage(*elfPath)
@@ -97,6 +99,13 @@ func main() {
 
 	if *outDir != "" {
 		if err := emit(a, *outDir); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+	}
+
+	if *gbaPath != "" && *assetsDir != "" {
+		if err := extractAssets(*gbaPath, *elfPath, *assetsDir); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}

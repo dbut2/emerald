@@ -2,3 +2,4 @@
 *.sav
 *.elf
 .DS_Store
+/emerald
