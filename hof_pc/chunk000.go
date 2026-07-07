@@ -15,9 +15,11 @@ func AccessHallOfFamePC(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(12)
-	c.Thumb(0xB500)
-	c.R[15] = 0x0810DEDE
-	c.Thumb(0x4803)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[0] = c.Memory.Read32(0x0810DEE8, true, false)
 	c.R[14] = 0x0810DEE1
 	c.NCallT(0x080005B8)
 	if c.U != 0 {
@@ -34,7 +36,10 @@ func AccessHallOfFamePC(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0xBC01)
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -66,9 +71,11 @@ func ReturnFromHallOfFamePC(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(16)
-	c.Thumb(0xB500)
-	c.R[15] = 0x0810DEF2
-	c.Thumb(0x4804)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[0] = c.Memory.Read32(0x0810DF00, true, false)
 	c.R[14] = 0x0810DEF5
 	c.NCallT(0x080005B8)
 	if c.U != 0 {
@@ -77,12 +84,13 @@ func ReturnFromHallOfFamePC(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0810DEF8
-	c.Thumb(0x4B03)
-	c.R[15] = 0x0810DEFA
-	c.Thumb(0x4A04)
-	c.Thumb(0x601A)
-	c.Thumb(0xBC01)
+	c.R[3] = c.Memory.Read32(0x0810DF04, true, false)
+	c.R[2] = c.Memory.Read32(0x0810DF08, true, false)
+	c.Memory.Set32(c.R[3]+0, c.R[2], true, false)
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -114,8 +122,11 @@ func ReshowPCMenuAfterHallOfFamePC(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(38)
-	c.Thumb(0xB500)
-	c.Thumb(0xB081)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[13] -= 4
 	c.R[14] = 0x0810DF15
 	c.NCallT(0x081A3708)
 	if c.U != 0 {
@@ -148,12 +159,21 @@ func ReshowPCMenuAfterHallOfFamePC(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2300)
-	c.Thumb(0x2001)
-	c.Thumb(0x2210)
-	c.Thumb(0x9300)
-	c.Thumb(0x2100)
-	c.Thumb(0x4240)
+	c.R[3] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.R[2] = 16
+	c.SetNZ(int32(16) < 0, 16 == 0)
+	c.Memory.Set32(c.R[13]+0, c.R[3], true, false)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	{
+		val := g.SUB(0, c.R[0], 0)
+		v := uint32(val)
+		c.R[0] = v
+		c.SetNZCV(g.FlagArithSub(0, c.R[0], val))
+	}
 	c.R[14] = 0x0810DF31
 	c.NCallT(0x08142E80)
 	if c.U != 0 {
@@ -162,9 +182,9 @@ func ReshowPCMenuAfterHallOfFamePC(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x210A)
-	c.R[15] = 0x0810DF36
-	c.Thumb(0x4803)
+	c.R[1] = 10
+	c.SetNZ(int32(10) < 0, 10 == 0)
+	c.R[0] = c.Memory.Read32(0x0810DF40, true, false)
 	c.R[14] = 0x0810DF39
 	c.NCallT(0x081B4C48)
 	if c.U != 0 {
@@ -173,8 +193,11 @@ func ReshowPCMenuAfterHallOfFamePC(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0xB001)
-	c.Thumb(0xBC01)
+	c.R[13] += 4
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -206,13 +229,26 @@ func Task_WaitForPaletteFade(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(16)
-	c.R[15] = 0x0810DF48
-	c.Thumb(0x4B05)
-	c.Thumb(0x79DB)
-	c.Thumb(0x0600)
-	c.Thumb(0xB500)
-	c.Thumb(0x0E00)
-	c.Thumb(0x2B7F)
+	c.R[3] = c.Memory.Read32(0x0810DF5C, true, false)
+	c.R[3] = uint32(c.Memory.Read8(c.R[3]+7, true, false))
+	{
+		v, cy := g.ShiftLSL(c.R[0], 24)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	{
+		v, cy := g.ShiftLSR(c.R[0], 24)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		val := g.SUB(c.R[3], 127, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 127, val))
+	}
 	if c.Cond(0x8) {
 		goto L_0810DF56
 	}
@@ -226,7 +262,10 @@ func Task_WaitForPaletteFade(c *g.CPU) {
 	}
 L_0810DF56:
 	c.NT(4)
-	c.Thumb(0xBC01)
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {

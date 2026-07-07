@@ -28,16 +28,20 @@ func InitFieldMessageBox(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(18)
-	c.Thumb(0x2200)
-	c.Thumb(0x210F)
-	c.R[15] = 0x080F3564
-	c.Thumb(0x4B03)
-	c.Thumb(0x701A)
-	c.R[15] = 0x080F3568
-	c.Thumb(0x4A03)
-	c.Thumb(0x7813)
-	c.Thumb(0x438B)
-	c.Thumb(0x7013)
+	c.R[2] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[1] = 15
+	c.SetNZ(int32(15) < 0, 15 == 0)
+	c.R[3] = c.Memory.Read32(0x080F3570, true, false)
+	c.Memory.Set8(c.R[3]+0, uint8(c.R[2]), true, false)
+	c.R[2] = c.Memory.Read32(0x080F3574, true, false)
+	c.R[3] = uint32(c.Memory.Read8(c.R[2]+0, true, false))
+	{
+		v := uint32(c.R[3] &^ c.R[1])
+		c.R[3] = v
+		c.SetNZ(int32(v) < 0, v == 0)
+	}
+	c.Memory.Set8(c.R[2]+0, uint8(c.R[3]), true, false)
 	{
 		t := c.R[14]
 		if t&^1 == lr&^1 {
@@ -69,26 +73,68 @@ func Task_DrawFieldMessage(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(40)
-	c.Thumb(0x0600)
-	c.Thumb(0xB530)
-	c.Thumb(0x0E05)
-	c.Thumb(0x0D80)
-	c.R[15] = 0x080F3584
-	c.Thumb(0x4C13)
-	c.Thumb(0x1940)
-	c.Thumb(0x00C0)
-	c.Thumb(0x1824)
-	c.Thumb(0x2208)
-	c.Thumb(0x5EA3)
-	c.Thumb(0x2B01)
+	{
+		v, cy := g.ShiftLSL(c.R[0], 24)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[5], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	{
+		v, cy := g.ShiftLSR(c.R[0], 24)
+		c.R[5] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSR(c.R[0], 22)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[4] = c.Memory.Read32(0x080F35D0, true, false)
+	{
+		op1, op2 := c.R[0], uint32(c.R[5])
+		val := g.ADD(op1, op2, 0)
+		c.R[0] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[0], 3)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		op1, op2 := c.R[4], uint32(c.R[0])
+		val := g.ADD(op1, op2, 0)
+		c.R[4] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
+	c.R[2] = 8
+	c.SetNZ(int32(8) < 0, 8 == 0)
+	c.R[3] = c.LoadHalfSigned(c.R[4] + c.R[2])
+	{
+		val := g.SUB(c.R[3], 1, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 1, val))
+	}
 	if c.Cond(0x0) {
 		goto L_080F35BE
 	}
-	c.Thumb(0x2B02)
+	{
+		val := g.SUB(c.R[3], 2, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 2, val))
+	}
 	if c.Cond(0x0) {
 		goto L_080F35A8
 	}
-	c.Thumb(0x2B00)
+	{
+		val := g.SUB(c.R[3], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 0, val))
+	}
 	if c.Cond(0x1) {
 		goto L_080F35A2
 	}
@@ -100,13 +146,25 @@ func Task_DrawFieldMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x8923)
-	c.Thumb(0x3301)
-	c.Thumb(0x8123)
+	c.R[3] = c.LoadHalf(c.R[4] + 8)
+	{
+		val := g.ADD(c.R[3], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[3], 1, val))
+		c.R[3] = uint32(val)
+	}
+	c.Memory.Set16(c.R[4]+8, uint16(c.R[3]), true, false)
 L_080F35A2:
 	c.NT(6)
-	c.Thumb(0xBC30)
-	c.Thumb(0xBC01)
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[5] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -141,15 +199,19 @@ L_080F35A8:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2801)
+	{
+		val := g.SUB(c.R[0], 1, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[0], 1, val))
+	}
 	if c.Cond(0x0) {
 		goto L_080F35A2
 	}
-	c.Thumb(0x2200)
-	c.R[15] = 0x080F35B6
-	c.Thumb(0x4B08)
-	c.Thumb(0x0028)
-	c.Thumb(0x701A)
+	c.R[2] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[3] = c.Memory.Read32(0x080F35D4, true, false)
+	c.R[0] = c.R[5]
+	c.SetNZ(int32(c.R[0]) < 0, c.R[0] == 0)
+	c.Memory.Set8(c.R[3]+0, uint8(c.R[2]), true, false)
 	c.R[14] = 0x080F35BD
 	c.NCallT(0x081B4D48)
 	if c.U != 0 {
@@ -161,8 +223,10 @@ L_080F35A8:
 	goto L_080F35A2
 L_080F35BE:
 	c.NT(14)
-	c.Thumb(0x2101)
-	c.Thumb(0x2000)
+	c.R[1] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 	c.R[14] = 0x080F35C7
 	c.NCallT(0x0812EAFC)
 	if c.U != 0 {
@@ -171,9 +235,13 @@ L_080F35BE:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x8923)
-	c.Thumb(0x3301)
-	c.Thumb(0x8123)
+	c.R[3] = c.LoadHalf(c.R[4] + 8)
+	{
+		val := g.ADD(c.R[3], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[3], 1, val))
+		c.R[3] = uint32(val)
+	}
+	c.Memory.Set16(c.R[4]+8, uint16(c.R[3]), true, false)
 	goto L_080F35A2
 }
 
@@ -182,10 +250,13 @@ func CreateTask_DrawFieldMessage(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(12)
-	c.Thumb(0xB500)
-	c.Thumb(0x2150)
-	c.R[15] = 0x080F35E0
-	c.Thumb(0x4802)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[1] = 80
+	c.SetNZ(int32(80) < 0, 80 == 0)
+	c.R[0] = c.Memory.Read32(0x080F35E8, true, false)
 	c.R[14] = 0x080F35E3
 	c.NCallT(0x081B4C48)
 	if c.U != 0 {
@@ -194,7 +265,10 @@ func CreateTask_DrawFieldMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0xBC01)
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -226,9 +300,11 @@ func DestroyTask_DrawFieldMessage(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(12)
-	c.Thumb(0xB500)
-	c.R[15] = 0x080F35F2
-	c.Thumb(0x4804)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[0] = c.Memory.Read32(0x080F3600, true, false)
 	c.R[14] = 0x080F35F5
 	c.NCallT(0x081B4E80)
 	if c.U != 0 {
@@ -237,7 +313,10 @@ func DestroyTask_DrawFieldMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x28FF)
+	{
+		val := g.SUB(c.R[0], 255, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[0], 255, val))
+	}
 	if c.Cond(0x0) {
 		goto L_080F35FC
 	}
@@ -251,7 +330,10 @@ func DestroyTask_DrawFieldMessage(c *g.CPU) {
 	}
 L_080F35FC:
 	c.NT(4)
-	c.Thumb(0xBC01)
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -283,18 +365,26 @@ func ShowFieldMessage(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(34)
-	c.Thumb(0xB510)
-	c.R[15] = 0x080F360A
-	c.Thumb(0x4C0B)
-	c.Thumb(0x7822)
-	c.Thumb(0x2300)
-	c.Thumb(0x2A00)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	c.R[4] = c.Memory.Read32(0x080F3634, true, false)
+	c.R[2] = uint32(c.Memory.Read8(c.R[4]+0, true, false))
+	c.R[3] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	{
+		val := g.SUB(c.R[2], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[2], 0, val))
+	}
 	if c.Cond(0x1) {
 		goto L_080F362C
 	}
-	c.Thumb(0x0001)
-	c.R[15] = 0x080F3616
-	c.Thumb(0x4809)
+	c.R[1] = c.R[0]
+	c.SetNZ(int32(c.R[1]) < 0, c.R[1] == 0)
+	c.R[0] = c.Memory.Read32(0x080F3638, true, false)
 	c.R[14] = 0x080F3619
 	c.NCallT(0x081B4728)
 	if c.U != 0 {
@@ -303,7 +393,8 @@ func ShowFieldMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2001)
+	c.R[0] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
 	c.R[14] = 0x080F361F
 	c.NCallT(0x0812E988)
 	if c.U != 0 {
@@ -312,9 +403,9 @@ func ShowFieldMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2150)
-	c.R[15] = 0x080F3624
-	c.Thumb(0x4806)
+	c.R[1] = 80
+	c.SetNZ(int32(80) < 0, 80 == 0)
+	c.R[0] = c.Memory.Read32(0x080F363C, true, false)
 	c.R[14] = 0x080F3627
 	c.NCallT(0x081B4C48)
 	if c.U != 0 {
@@ -323,14 +414,26 @@ func ShowFieldMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2302)
-	c.Thumb(0x7023)
-	c.Thumb(0x3B01)
+	c.R[3] = 2
+	c.SetNZ(int32(2) < 0, 2 == 0)
+	c.Memory.Set8(c.R[4]+0, uint8(c.R[3]), true, false)
+	{
+		val := g.SUB(c.R[3], 1, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 1, val))
+		c.R[3] = uint32(val)
+	}
 L_080F362C:
 	c.NT(8)
-	c.Thumb(0x0018)
-	c.Thumb(0xBC10)
-	c.Thumb(0xBC02)
+	c.R[0] = c.R[3]
+	c.SetNZ(int32(c.R[0]) < 0, c.R[0] == 0)
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[1] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[1]
 		if t&^1 == lr&^1 {
@@ -362,9 +465,22 @@ func Task_HidePokenavMessageWhenDone(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(12)
-	c.Thumb(0xB510)
-	c.Thumb(0x0600)
-	c.Thumb(0x0E04)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[0], 24)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSR(c.R[0], 24)
+		c.R[4] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
 	c.R[14] = 0x080F364B
 	c.NCallT(0x08129C4C)
 	if c.U != 0 {
@@ -373,14 +489,23 @@ func Task_HidePokenavMessageWhenDone(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2800)
+	{
+		val := g.SUB(c.R[0], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[0], 0, val))
+	}
 	if c.Cond(0x0) {
 		goto L_080F3654
 	}
 L_080F364E:
 	c.NT(6)
-	c.Thumb(0xBC10)
-	c.Thumb(0xBC01)
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -407,10 +532,10 @@ L_080F364E:
 	}
 L_080F3654:
 	c.NT(10)
-	c.R[15] = 0x080F3658
-	c.Thumb(0x4B02)
-	c.Thumb(0x7018)
-	c.Thumb(0x0020)
+	c.R[3] = c.Memory.Read32(0x080F3660, true, false)
+	c.Memory.Set8(c.R[3]+0, uint8(c.R[0]), true, false)
+	c.R[0] = c.R[4]
+	c.SetNZ(int32(c.R[0]) < 0, c.R[0] == 0)
 	c.R[14] = 0x080F365F
 	c.NCallT(0x081B4D48)
 	if c.U != 0 {
@@ -427,19 +552,30 @@ func ShowPokenavFieldMessage(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(36)
-	c.Thumb(0xB530)
-	c.R[15] = 0x080F366A
-	c.Thumb(0x4C0B)
-	c.Thumb(0x7823)
-	c.Thumb(0x0005)
-	c.Thumb(0x2000)
-	c.Thumb(0x2B00)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[5], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	c.R[4] = c.Memory.Read32(0x080F3694, true, false)
+	c.R[3] = uint32(c.Memory.Read8(c.R[4]+0, true, false))
+	c.R[5] = c.R[0]
+	c.SetNZ(int32(c.R[5]) < 0, c.R[5] == 0)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	{
+		val := g.SUB(c.R[3], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 0, val))
+	}
 	if c.Cond(0x1) {
 		goto L_080F368E
 	}
-	c.Thumb(0x0029)
-	c.R[15] = 0x080F3678
-	c.Thumb(0x4808)
+	c.R[1] = c.R[5]
+	c.SetNZ(int32(c.R[1]) < 0, c.R[1] == 0)
+	c.R[0] = c.Memory.Read32(0x080F3698, true, false)
 	c.R[14] = 0x080F367B
 	c.NCallT(0x081B4728)
 	if c.U != 0 {
@@ -448,9 +584,9 @@ func ShowPokenavFieldMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2100)
-	c.R[15] = 0x080F3680
-	c.Thumb(0x4807)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = c.Memory.Read32(0x080F369C, true, false)
 	c.R[14] = 0x080F3683
 	c.NCallT(0x081B4C48)
 	if c.U != 0 {
@@ -459,7 +595,8 @@ func ShowPokenavFieldMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x0028)
+	c.R[0] = c.R[5]
+	c.SetNZ(int32(c.R[0]) < 0, c.R[0] == 0)
 	c.R[14] = 0x080F3689
 	c.NCallT(0x08129C28)
 	if c.U != 0 {
@@ -468,13 +605,23 @@ func ShowPokenavFieldMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2302)
-	c.Thumb(0x2001)
-	c.Thumb(0x7023)
+	c.R[3] = 2
+	c.SetNZ(int32(2) < 0, 2 == 0)
+	c.R[0] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.Memory.Set8(c.R[4]+0, uint8(c.R[3]), true, false)
 L_080F368E:
 	c.NT(6)
-	c.Thumb(0xBC30)
-	c.Thumb(0xBC02)
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[5] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[1] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[1]
 		if t&^1 == lr&^1 {
@@ -506,20 +653,30 @@ func ShowFieldAutoScrollMessage(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(34)
-	c.Thumb(0xB500)
-	c.R[15] = 0x080F36A6
-	c.Thumb(0x4A0B)
-	c.Thumb(0x7811)
-	c.Thumb(0x2300)
-	c.Thumb(0x2900)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[2] = c.Memory.Read32(0x080F36D0, true, false)
+	c.R[1] = uint32(c.Memory.Read8(c.R[2]+0, true, false))
+	c.R[3] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	{
+		val := g.SUB(c.R[1], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[1], 0, val))
+	}
 	if c.Cond(0x1) {
 		goto L_080F36C8
 	}
-	c.Thumb(0x3303)
-	c.Thumb(0x0001)
-	c.R[15] = 0x080F36B4
-	c.Thumb(0x4808)
-	c.Thumb(0x7013)
+	{
+		val := g.ADD(c.R[3], 3, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[3], 3, val))
+		c.R[3] = uint32(val)
+	}
+	c.R[1] = c.R[0]
+	c.SetNZ(int32(c.R[1]) < 0, c.R[1] == 0)
+	c.R[0] = c.Memory.Read32(0x080F36D4, true, false)
+	c.Memory.Set8(c.R[2]+0, uint8(c.R[3]), true, false)
 	c.R[14] = 0x080F36B9
 	c.NCallT(0x081B4728)
 	if c.U != 0 {
@@ -528,7 +685,8 @@ func ShowFieldAutoScrollMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2000)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 	c.R[14] = 0x080F36BF
 	c.NCallT(0x0812E988)
 	if c.U != 0 {
@@ -537,9 +695,9 @@ func ShowFieldAutoScrollMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2150)
-	c.R[15] = 0x080F36C4
-	c.Thumb(0x4805)
+	c.R[1] = 80
+	c.SetNZ(int32(80) < 0, 80 == 0)
+	c.R[0] = c.Memory.Read32(0x080F36D8, true, false)
 	c.R[14] = 0x080F36C7
 	c.NCallT(0x081B4C48)
 	if c.U != 0 {
@@ -548,11 +706,16 @@ func ShowFieldAutoScrollMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2301)
+	c.R[3] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
 L_080F36C8:
 	c.NT(6)
-	c.Thumb(0x0018)
-	c.Thumb(0xBC02)
+	c.R[0] = c.R[3]
+	c.SetNZ(int32(c.R[0]) < 0, c.R[0] == 0)
+	{
+		c.R[1] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[1]
 		if t&^1 == lr&^1 {
@@ -584,14 +747,17 @@ func ForceShowFieldAutoScrollMessage(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(30)
-	c.Thumb(0x2203)
-	c.Thumb(0xB500)
-	c.R[15] = 0x080F36E4
-	c.Thumb(0x4B07)
-	c.Thumb(0x0001)
-	c.R[15] = 0x080F36E8
-	c.Thumb(0x4807)
-	c.Thumb(0x701A)
+	c.R[2] = 3
+	c.SetNZ(int32(3) < 0, 3 == 0)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[3] = c.Memory.Read32(0x080F3700, true, false)
+	c.R[1] = c.R[0]
+	c.SetNZ(int32(c.R[1]) < 0, c.R[1] == 0)
+	c.R[0] = c.Memory.Read32(0x080F3704, true, false)
+	c.Memory.Set8(c.R[3]+0, uint8(c.R[2]), true, false)
 	c.R[14] = 0x080F36ED
 	c.NCallT(0x081B4728)
 	if c.U != 0 {
@@ -600,7 +766,8 @@ func ForceShowFieldAutoScrollMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2001)
+	c.R[0] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
 	c.R[14] = 0x080F36F3
 	c.NCallT(0x0812E988)
 	if c.U != 0 {
@@ -609,9 +776,9 @@ func ForceShowFieldAutoScrollMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2150)
-	c.R[15] = 0x080F36F8
-	c.Thumb(0x4804)
+	c.R[1] = 80
+	c.SetNZ(int32(80) < 0, 80 == 0)
+	c.R[0] = c.Memory.Read32(0x080F3708, true, false)
 	c.R[14] = 0x080F36FB
 	c.NCallT(0x081B4C48)
 	if c.U != 0 {
@@ -620,8 +787,12 @@ func ForceShowFieldAutoScrollMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2001)
-	c.Thumb(0xBC02)
+	c.R[0] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	{
+		c.R[1] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[1]
 		if t&^1 == lr&^1 {
@@ -653,18 +824,32 @@ func ShowFieldMessageFromBuffer(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(28)
-	c.Thumb(0xB500)
-	c.R[15] = 0x080F3712
-	c.Thumb(0x4B08)
-	c.Thumb(0x781A)
-	c.Thumb(0x2000)
-	c.Thumb(0x2A00)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[3] = c.Memory.Read32(0x080F3730, true, false)
+	c.R[2] = uint32(c.Memory.Read8(c.R[3]+0, true, false))
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	{
+		val := g.SUB(c.R[2], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[2], 0, val))
+	}
 	if c.Cond(0x1) {
 		goto L_080F372C
 	}
-	c.Thumb(0x3202)
-	c.Thumb(0x3001)
-	c.Thumb(0x701A)
+	{
+		val := g.ADD(c.R[2], 2, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[2], 2, val))
+		c.R[2] = uint32(val)
+	}
+	{
+		val := g.ADD(c.R[0], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[0], 1, val))
+		c.R[0] = uint32(val)
+	}
+	c.Memory.Set8(c.R[3]+0, uint8(c.R[2]), true, false)
 	c.R[14] = 0x080F3723
 	c.NCallT(0x0812E988)
 	if c.U != 0 {
@@ -673,9 +858,9 @@ func ShowFieldMessageFromBuffer(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2150)
-	c.R[15] = 0x080F3728
-	c.Thumb(0x4803)
+	c.R[1] = 80
+	c.SetNZ(int32(80) < 0, 80 == 0)
+	c.R[0] = c.Memory.Read32(0x080F3734, true, false)
 	c.R[14] = 0x080F372B
 	c.NCallT(0x081B4C48)
 	if c.U != 0 {
@@ -684,10 +869,14 @@ func ShowFieldMessageFromBuffer(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2001)
+	c.R[0] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
 L_080F372C:
 	c.NT(4)
-	c.Thumb(0xBC02)
+	{
+		c.R[1] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[1]
 		if t&^1 == lr&^1 {
@@ -719,11 +908,17 @@ func ExpandStringAndStartDrawFieldMessage(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(28)
-	c.Thumb(0xB510)
-	c.Thumb(0x000C)
-	c.Thumb(0x0001)
-	c.R[15] = 0x080F3742
-	c.Thumb(0x4807)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	c.R[4] = c.R[1]
+	c.SetNZ(int32(c.R[4]) < 0, c.R[4] == 0)
+	c.R[1] = c.R[0]
+	c.SetNZ(int32(c.R[1]) < 0, c.R[1] == 0)
+	c.R[0] = c.Memory.Read32(0x080F375C, true, false)
 	c.R[14] = 0x080F3745
 	c.NCallT(0x081B4728)
 	if c.U != 0 {
@@ -732,8 +927,13 @@ func ExpandStringAndStartDrawFieldMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x20FF)
-	c.Thumb(0x4020)
+	c.R[0] = 255
+	c.SetNZ(int32(255) < 0, 255 == 0)
+	{
+		v := uint32(c.R[0] & c.R[4])
+		c.R[0] = v
+		c.SetNZ(int32(v) < 0, v == 0)
+	}
 	c.R[14] = 0x080F374D
 	c.NCallT(0x0812E988)
 	if c.U != 0 {
@@ -742,9 +942,9 @@ func ExpandStringAndStartDrawFieldMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2150)
-	c.R[15] = 0x080F3752
-	c.Thumb(0x4804)
+	c.R[1] = 80
+	c.SetNZ(int32(80) < 0, 80 == 0)
+	c.R[0] = c.Memory.Read32(0x080F3760, true, false)
 	c.R[14] = 0x080F3755
 	c.NCallT(0x081B4C48)
 	if c.U != 0 {
@@ -753,8 +953,14 @@ func ExpandStringAndStartDrawFieldMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0xBC10)
-	c.Thumb(0xBC01)
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -786,8 +992,12 @@ func StartDrawFieldMessage(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(16)
-	c.Thumb(0xB500)
-	c.Thumb(0x2001)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[0] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
 	c.R[14] = 0x080F376D
 	c.NCallT(0x0812E988)
 	if c.U != 0 {
@@ -796,9 +1006,9 @@ func StartDrawFieldMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2150)
-	c.R[15] = 0x080F3772
-	c.Thumb(0x4802)
+	c.R[1] = 80
+	c.SetNZ(int32(80) < 0, 80 == 0)
+	c.R[0] = c.Memory.Read32(0x080F3778, true, false)
 	c.R[14] = 0x080F3775
 	c.NCallT(0x081B4C48)
 	if c.U != 0 {
@@ -807,7 +1017,10 @@ func StartDrawFieldMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0xBC01)
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -839,9 +1052,11 @@ func HideFieldMessageBox(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(12)
-	c.Thumb(0xB500)
-	c.R[15] = 0x080F3782
-	c.Thumb(0x4808)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[0] = c.Memory.Read32(0x080F37A0, true, false)
 	c.R[14] = 0x080F3785
 	c.NCallT(0x081B4E80)
 	if c.U != 0 {
@@ -850,7 +1065,10 @@ func HideFieldMessageBox(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x28FF)
+	{
+		val := g.SUB(c.R[0], 255, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[0], 255, val))
+	}
 	if c.Cond(0x0) {
 		goto L_080F378C
 	}
@@ -864,8 +1082,10 @@ func HideFieldMessageBox(c *g.CPU) {
 	}
 L_080F378C:
 	c.NT(16)
-	c.Thumb(0x2101)
-	c.Thumb(0x2000)
+	c.R[1] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 	c.R[14] = 0x080F3795
 	c.NCallT(0x0812EB6C)
 	if c.U != 0 {
@@ -874,11 +1094,14 @@ L_080F378C:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2200)
-	c.R[15] = 0x080F379A
-	c.Thumb(0x4B03)
-	c.Thumb(0x701A)
-	c.Thumb(0xBC01)
+	c.R[2] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[3] = c.Memory.Read32(0x080F37A4, true, false)
+	c.Memory.Set8(c.R[3]+0, uint8(c.R[2]), true, false)
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -910,9 +1133,8 @@ func GetFieldMessageBoxMode(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(6)
-	c.R[15] = 0x080F37AC
-	c.Thumb(0x4B01)
-	c.Thumb(0x7818)
+	c.R[3] = c.Memory.Read32(0x080F37B0, true, false)
+	c.R[0] = uint32(c.Memory.Read8(c.R[3]+0, true, false))
 	{
 		t := c.R[14]
 		if t&^1 == lr&^1 {
@@ -944,11 +1166,20 @@ func IsFieldMessageBoxHidden(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(10)
-	c.R[15] = 0x080F37B8
-	c.Thumb(0x4B02)
-	c.Thumb(0x7818)
-	c.Thumb(0x4243)
-	c.Thumb(0x4158)
+	c.R[3] = c.Memory.Read32(0x080F37C0, true, false)
+	c.R[0] = uint32(c.Memory.Read8(c.R[3]+0, true, false))
+	{
+		val := g.SUB(0, c.R[0], 0)
+		v := uint32(val)
+		c.R[3] = v
+		c.SetNZCV(g.FlagArithSub(0, c.R[0], val))
+	}
+	{
+		val := g.ADC(c.R[0], c.R[3], c.CFlag())
+		v := uint32(val)
+		c.R[0] = v
+		c.SetNZCV(g.FlagArithAdd(c.R[0], c.R[3], val))
+	}
 	{
 		t := c.R[14]
 		if t&^1 == lr&^1 {
@@ -980,9 +1211,11 @@ func ReplaceFieldMessageWithFrame(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(12)
-	c.Thumb(0xB500)
-	c.R[15] = 0x080F37CA
-	c.Thumb(0x4808)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[0] = c.Memory.Read32(0x080F37E8, true, false)
 	c.R[14] = 0x080F37CD
 	c.NCallT(0x081B4E80)
 	if c.U != 0 {
@@ -991,7 +1224,10 @@ func ReplaceFieldMessageWithFrame(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x28FF)
+	{
+		val := g.SUB(c.R[0], 255, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[0], 255, val))
+	}
 	if c.Cond(0x0) {
 		goto L_080F37D4
 	}
@@ -1005,8 +1241,10 @@ func ReplaceFieldMessageWithFrame(c *g.CPU) {
 	}
 L_080F37D4:
 	c.NT(16)
-	c.Thumb(0x2101)
-	c.Thumb(0x2000)
+	c.R[1] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 	c.R[14] = 0x080F37DD
 	c.NCallT(0x0812EB34)
 	if c.U != 0 {
@@ -1015,11 +1253,14 @@ L_080F37D4:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2200)
-	c.R[15] = 0x080F37E2
-	c.Thumb(0x4B03)
-	c.Thumb(0x701A)
-	c.Thumb(0xBC01)
+	c.R[2] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[3] = c.Memory.Read32(0x080F37EC, true, false)
+	c.Memory.Set8(c.R[3]+0, uint8(c.R[2]), true, false)
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -1051,9 +1292,11 @@ func StopFieldMessage(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(12)
-	c.Thumb(0xB500)
-	c.R[15] = 0x080F37F6
-	c.Thumb(0x4806)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[0] = c.Memory.Read32(0x080F380C, true, false)
 	c.R[14] = 0x080F37F9
 	c.NCallT(0x081B4E80)
 	if c.U != 0 {
@@ -1062,7 +1305,10 @@ func StopFieldMessage(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x28FF)
+	{
+		val := g.SUB(c.R[0], 255, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[0], 255, val))
+	}
 	if c.Cond(0x0) {
 		goto L_080F3800
 	}
@@ -1076,11 +1322,14 @@ func StopFieldMessage(c *g.CPU) {
 	}
 L_080F3800:
 	c.NT(10)
-	c.Thumb(0x2200)
-	c.R[15] = 0x080F3806
-	c.Thumb(0x4B03)
-	c.Thumb(0x701A)
-	c.Thumb(0xBC01)
+	c.R[2] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[3] = c.Memory.Read32(0x080F3810, true, false)
+	c.Memory.Set8(c.R[3]+0, uint8(c.R[2]), true, false)
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {

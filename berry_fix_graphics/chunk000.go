@@ -12,29 +12,63 @@ func LoadBerryFixGraphics(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(76)
-	c.Thumb(0xB570)
-	c.Thumb(0x2580)
-	c.Thumb(0x2300)
-	c.Thumb(0x21C0)
-	c.R[15] = 0x080A5394
-	c.Thumb(0x4A12)
-	c.Thumb(0x04ED)
-	c.Thumb(0x802B)
-	c.Thumb(0x8013)
-	c.R[15] = 0x080A539C
-	c.Thumb(0x4A11)
-	c.Thumb(0x0046)
-	c.Thumb(0x8013)
-	c.R[15] = 0x080A53A2
-	c.Thumb(0x4C11)
-	c.R[15] = 0x080A53A4
-	c.Thumb(0x4A11)
-	c.Thumb(0x1836)
-	c.Thumb(0x00B6)
-	c.Thumb(0x8013)
-	c.Thumb(0x5930)
-	c.Thumb(0x04C9)
-	c.Thumb(0x19A4)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[6], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[5], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	c.R[5] = 128
+	c.SetNZ(int32(128) < 0, 128 == 0)
+	c.R[3] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[1] = 192
+	c.SetNZ(int32(192) < 0, 192 == 0)
+	c.R[2] = c.Memory.Read32(0x080A53DC, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[5], 19)
+		c.R[5] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set16(c.R[5]+0, uint16(c.R[3]), true, false)
+	c.Memory.Set16(c.R[2]+0, uint16(c.R[3]), true, false)
+	c.R[2] = c.Memory.Read32(0x080A53E0, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[0], 1)
+		c.R[6] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set16(c.R[2]+0, uint16(c.R[3]), true, false)
+	c.R[4] = c.Memory.Read32(0x080A53E4, true, false)
+	c.R[2] = c.Memory.Read32(0x080A53E8, true, false)
+	{
+		op1, op2 := c.R[6], uint32(c.R[0])
+		val := g.ADD(op1, op2, 0)
+		c.R[6] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[6], 2)
+		c.R[6] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set16(c.R[2]+0, uint16(c.R[3]), true, false)
+	c.R[0] = c.Memory.Read32(c.R[6]+c.R[4], true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[1], 19)
+		c.R[1] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		op1, op2 := c.R[4], uint32(c.R[6])
+		val := g.ADD(op1, op2, 0)
+		c.R[4] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
 	c.R[14] = 0x080A53B3
 	c.NCallT(0x082E482C)
 	if c.U != 0 {
@@ -43,10 +77,10 @@ func LoadBerryFixGraphics(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2680)
-	c.Thumb(0x6860)
-	c.R[15] = 0x080A53BA
-	c.Thumb(0x490D)
+	c.R[6] = 128
+	c.SetNZ(int32(128) < 0, 128 == 0)
+	c.R[0] = c.Memory.Read32(c.R[4]+4, true, false)
+	c.R[1] = c.Memory.Read32(0x080A53EC, true, false)
 	c.R[14] = 0x080A53BD
 	c.NCallT(0x082E482C)
 	if c.U != 0 {
@@ -55,11 +89,21 @@ func LoadBerryFixGraphics(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x21A0)
-	c.Thumb(0x0076)
-	c.Thumb(0x0032)
-	c.Thumb(0x68A0)
-	c.Thumb(0x04C9)
+	c.R[1] = 160
+	c.SetNZ(int32(160) < 0, 160 == 0)
+	{
+		v, cy := g.ShiftLSL(c.R[6], 1)
+		c.R[6] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[2] = c.R[6]
+	c.SetNZ(int32(c.R[2]) < 0, c.R[2] == 0)
+	c.R[0] = c.Memory.Read32(c.R[4]+8, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[1], 19)
+		c.R[1] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
 	c.R[14] = 0x080A53CB
 	c.NCallT(0x082E4850)
 	if c.U != 0 {
@@ -68,14 +112,28 @@ func LoadBerryFixGraphics(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x22F8)
-	c.R[15] = 0x080A53D0
-	c.Thumb(0x4B08)
-	c.Thumb(0x0152)
-	c.Thumb(0x801A)
-	c.Thumb(0x802E)
-	c.Thumb(0xBC70)
-	c.Thumb(0xBC01)
+	c.R[2] = 248
+	c.SetNZ(int32(248) < 0, 248 == 0)
+	c.R[3] = c.Memory.Read32(0x080A53F0, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[2], 5)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set16(c.R[3]+0, uint16(c.R[2]), true, false)
+	c.Memory.Set16(c.R[5]+0, uint16(c.R[6]), true, false)
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[5] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[6] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {

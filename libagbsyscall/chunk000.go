@@ -90,7 +90,8 @@ func VBlankIntrWait(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(6)
-	c.Thumb(0x2200)
+	c.R[2] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 	c.NSWI(0x05)
 	{
 		t := c.R[14]
@@ -251,7 +252,8 @@ func MultiBoot(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(6)
-	c.Thumb(0x2101)
+	c.R[1] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
 	c.NSWI(0x25)
 	{
 		t := c.R[14]
@@ -444,20 +446,32 @@ func SoftReset(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(24)
-	c.R[15] = 0x082E4858
-	c.Thumb(0x4B03)
-	c.Thumb(0x2200)
-	c.Thumb(0x701A)
-	c.R[15] = 0x082E485E
-	c.Thumb(0x4903)
-	c.Thumb(0x468D)
+	c.R[3] = c.Memory.Read32(0x082E4864, true, false)
+	c.R[2] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.Memory.Set8(c.R[3]+0, uint8(c.R[2]), true, false)
+	c.R[1] = c.Memory.Read32(0x082E4868, true, false)
+	c.R[13] = c.R[1]
 	c.NSWI(0x01)
 	c.NSWI(0x00)
-	c.Thumb(0x0000)
-	c.Thumb(0x0208)
-	c.Thumb(0x0400)
-	c.Thumb(0x7F00)
-	c.Thumb(0x0300)
+	c.R[0] = c.R[0]
+	c.SetNZ(int32(c.R[0]) < 0, c.R[0] == 0)
+	{
+		v, cy := g.ShiftLSL(c.R[1], 8)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[0], 16)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[0] = uint32(c.Memory.Read8(c.R[0]+28, true, false))
+	{
+		v, cy := g.ShiftLSL(c.R[0], 12)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
 	RLUnCompVram(c)
 	return
 }

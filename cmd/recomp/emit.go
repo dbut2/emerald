@@ -366,6 +366,10 @@ func emitInst(a *Analysis, w io.Writer, fc *FnCode, in *Inst) error {
 	switch in.Kind {
 	case KGeneric:
 		if thumb {
+			if sem, ok := thumbSemantic(in.Raw, A); ok {
+				io.WriteString(w, sem)
+				break
+			}
 			if in.ReadsPC {
 				fmt.Fprintf(w, "\tc.R[15] = 0x%08X\n", A+4)
 			}
@@ -446,7 +450,11 @@ func emitInst(a *Analysis, w io.Writer, fc *FnCode, in *Inst) error {
 
 	case KPopPC:
 		if in.Reg != 0 {
-			fmt.Fprintf(w, "\tc.Thumb(0x%04X)\n", 0xBC00|in.Reg)
+			if sem, ok := thumbSemantic(0xBC00|in.Reg, A); ok {
+				io.WriteString(w, sem)
+			} else {
+				fmt.Fprintf(w, "\tc.Thumb(0x%04X)\n", 0xBC00|in.Reg)
+			}
 		}
 		body := fmt.Sprintf("t := c.Memory.Read32(c.R[13], true, false)\n\t\tc.R[13] += 4\n%s", indirectTail("c.NCallT(t)"))
 		fmt.Fprintf(w, "\t{\n\t\t%s\n\t}\n", body)

@@ -14,41 +14,87 @@ func GetHealLocationIndexByMap(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(16)
-	c.Thumb(0x0400)
-	c.Thumb(0xB510)
-	c.Thumb(0x040C)
-	c.R[15] = 0x0810DE56
-	c.Thumb(0x4B0B)
-	c.Thumb(0x0C01)
-	c.Thumb(0x0C24)
-	c.Thumb(0x2000)
+	{
+		v, cy := g.ShiftLSL(c.R[0], 16)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[1], 16)
+		c.R[4] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[3] = c.Memory.Read32(0x0810DE80, true, false)
+	{
+		v, cy := g.ShiftLSR(c.R[0], 16)
+		c.R[1] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSR(c.R[4], 16)
+		c.R[4] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 	goto L_0810DE62
 L_0810DE5C:
 	c.NT(6)
-	c.Thumb(0x3308)
-	c.Thumb(0x2816)
+	{
+		val := g.ADD(c.R[3], 8, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[3], 8, val))
+		c.R[3] = uint32(val)
+	}
+	{
+		val := g.SUB(c.R[0], 22, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[0], 22, val))
+	}
 	if c.Cond(0x0) {
 		goto L_0810DE7A
 	}
 L_0810DE62:
 	c.NT(18)
-	c.Thumb(0x2200)
-	c.Thumb(0x569A)
-	c.Thumb(0x3001)
-	c.Thumb(0x428A)
+	c.R[2] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[2] = uint32(int32(int8(c.Memory.Read8(c.R[3]+c.R[2], true, false))))
+	{
+		val := g.ADD(c.R[0], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[0], 1, val))
+		c.R[0] = uint32(val)
+	}
+	{
+		val := g.SUB(c.R[2], c.R[1], 0)
+		c.SetNZCV(g.FlagArithSub(c.R[2], c.R[1], val))
+	}
 	if c.Cond(0x1) {
 		goto L_0810DE5C
 	}
-	c.Thumb(0x2201)
-	c.Thumb(0x569A)
-	c.Thumb(0x42A2)
+	c.R[2] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.R[2] = uint32(int32(int8(c.Memory.Read8(c.R[3]+c.R[2], true, false))))
+	{
+		val := g.SUB(c.R[2], c.R[4], 0)
+		c.SetNZCV(g.FlagArithSub(c.R[2], c.R[4], val))
+	}
 	if c.Cond(0x1) {
 		goto L_0810DE5C
 	}
 L_0810DE74:
 	c.NT(6)
-	c.Thumb(0xBC10)
-	c.Thumb(0xBC02)
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[1] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[1]
 		if t&^1 == lr&^1 {
@@ -75,7 +121,8 @@ L_0810DE74:
 	}
 L_0810DE7A:
 	c.NT(4)
-	c.Thumb(0x2000)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 	goto L_0810DE74
 }
 
@@ -84,45 +131,96 @@ func GetHealLocationByMap(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(18)
-	c.R[15] = 0x0810DE88
-	c.Thumb(0x4B0E)
-	c.Thumb(0x0400)
-	c.Thumb(0x0409)
-	c.Thumb(0xB510)
-	c.Thumb(0x469C)
-	c.Thumb(0x2200)
-	c.Thumb(0x0C00)
-	c.Thumb(0x0C0C)
+	c.R[3] = c.Memory.Read32(0x0810DEC0, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[0], 16)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[1], 16)
+		c.R[1] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	c.R[12] = c.R[3]
+	c.R[2] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	{
+		v, cy := g.ShiftLSR(c.R[0], 16)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSR(c.R[1], 16)
+		c.R[4] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
 	goto L_0810DE9E
 L_0810DE96:
 	c.NT(8)
-	c.Thumb(0x3201)
-	c.Thumb(0x3308)
-	c.Thumb(0x2A16)
+	{
+		val := g.ADD(c.R[2], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[2], 1, val))
+		c.R[2] = uint32(val)
+	}
+	{
+		val := g.ADD(c.R[3], 8, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[3], 8, val))
+		c.R[3] = uint32(val)
+	}
+	{
+		val := g.SUB(c.R[2], 22, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[2], 22, val))
+	}
 	if c.Cond(0x0) {
 		goto L_0810DEBA
 	}
 L_0810DE9E:
 	c.NT(22)
-	c.Thumb(0x2100)
-	c.Thumb(0x5659)
-	c.Thumb(0x4281)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[1] = uint32(int32(int8(c.Memory.Read8(c.R[3]+c.R[1], true, false))))
+	{
+		val := g.SUB(c.R[1], c.R[0], 0)
+		c.SetNZCV(g.FlagArithSub(c.R[1], c.R[0], val))
+	}
 	if c.Cond(0x1) {
 		goto L_0810DE96
 	}
-	c.Thumb(0x2101)
-	c.Thumb(0x5659)
-	c.Thumb(0x42A1)
+	c.R[1] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.R[1] = uint32(int32(int8(c.Memory.Read8(c.R[3]+c.R[1], true, false))))
+	{
+		val := g.SUB(c.R[1], c.R[4], 0)
+		c.SetNZCV(g.FlagArithSub(c.R[1], c.R[4], val))
+	}
 	if c.Cond(0x1) {
 		goto L_0810DE96
 	}
-	c.Thumb(0x00D2)
-	c.Thumb(0x4462)
-	c.Thumb(0x0010)
+	{
+		v, cy := g.ShiftLSL(c.R[2], 3)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[2] += c.R[12]
+	c.R[0] = c.R[2]
+	c.SetNZ(int32(c.R[0]) < 0, c.R[0] == 0)
 L_0810DEB4:
 	c.NT(6)
-	c.Thumb(0xBC10)
-	c.Thumb(0xBC02)
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[1] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[1]
 		if t&^1 == lr&^1 {
@@ -149,7 +247,8 @@ L_0810DEB4:
 	}
 L_0810DEBA:
 	c.NT(4)
-	c.Thumb(0x2000)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 	goto L_0810DEB4
 }
 
@@ -158,16 +257,33 @@ func GetHealLocation(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(14)
-	c.Thumb(0x1E43)
-	c.Thumb(0x2000)
-	c.Thumb(0x2B15)
+	{
+		op1, op2 := c.R[0], uint32(1)
+		val := g.SUB(op1, op2, 0)
+		c.R[3] = uint32(val)
+		c.SetNZCV(g.FlagArithSub(op1, op2, val))
+	}
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	{
+		val := g.SUB(c.R[3], 21, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 21, val))
+	}
 	if c.Cond(0x8) {
 		goto L_0810DED2
 	}
-	c.R[15] = 0x0810DED0
-	c.Thumb(0x4801)
-	c.Thumb(0x00DB)
-	c.Thumb(0x1818)
+	c.R[0] = c.Memory.Read32(0x0810DED4, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[3], 3)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		op1, op2 := c.R[3], uint32(c.R[0])
+		val := g.ADD(op1, op2, 0)
+		c.R[0] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
 L_0810DED2:
 	c.NT(2)
 	{

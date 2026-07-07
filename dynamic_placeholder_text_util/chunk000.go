@@ -15,11 +15,15 @@ func DynamicPlaceholderTextUtil_Reset(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(14)
-	c.Thumb(0xB500)
-	c.Thumb(0x2220)
-	c.Thumb(0x2100)
-	c.R[15] = 0x080CEA76
-	c.Thumb(0x4802)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[2] = 32
+	c.SetNZ(int32(32) < 0, 32 == 0)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = c.Memory.Read32(0x080CEA7C, true, false)
 	c.R[14] = 0x080CEA79
 	c.NCallT(0x082E66B0)
 	if c.U != 0 {
@@ -28,7 +32,10 @@ func DynamicPlaceholderTextUtil_Reset(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0xBC01)
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -60,16 +67,30 @@ func DynamicPlaceholderTextUtil_SetPlaceholderPtr(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(14)
-	c.Thumb(0x0600)
-	c.Thumb(0x0E00)
-	c.Thumb(0x2807)
+	{
+		v, cy := g.ShiftLSL(c.R[0], 24)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSR(c.R[0], 24)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		val := g.SUB(c.R[0], 7, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[0], 7, val))
+	}
 	if c.Cond(0x8) {
 		goto L_080CEA8E
 	}
-	c.R[15] = 0x080CEA8C
-	c.Thumb(0x4B01)
-	c.Thumb(0x0080)
-	c.Thumb(0x50C1)
+	c.R[3] = c.Memory.Read32(0x080CEA90, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[0], 2)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set32(c.R[0]+c.R[3], c.R[1], true, false)
 L_080CEA8E:
 	c.NT(2)
 	{
@@ -103,36 +124,67 @@ func DynamicPlaceholderTextUtil_ExpandPlaceholders(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(14)
-	c.Thumb(0xB530)
-	c.Thumb(0x780B)
-	c.Thumb(0x000C)
-	c.Thumb(0x2BFF)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[5], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	c.R[3] = uint32(c.Memory.Read8(c.R[1]+0, true, false))
+	c.R[4] = c.R[1]
+	c.SetNZ(int32(c.R[4]) < 0, c.R[4] == 0)
+	{
+		val := g.SUB(c.R[3], 255, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 255, val))
+	}
 	if c.Cond(0x0) {
 		goto L_080CEAC8
 	}
-	c.R[15] = 0x080CEAA2
-	c.Thumb(0x4D0C)
+	c.R[5] = c.Memory.Read32(0x080CEAD0, true, false)
 	goto L_080CEAAE
 L_080CEAA2:
 	c.NT(12)
-	c.Thumb(0x7003)
-	c.Thumb(0x7863)
-	c.Thumb(0x3401)
-	c.Thumb(0x3001)
-	c.Thumb(0x2BFF)
+	c.Memory.Set8(c.R[0]+0, uint8(c.R[3]), true, false)
+	c.R[3] = uint32(c.Memory.Read8(c.R[4]+1, true, false))
+	{
+		val := g.ADD(c.R[4], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[4], 1, val))
+		c.R[4] = uint32(val)
+	}
+	{
+		val := g.ADD(c.R[0], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[0], 1, val))
+		c.R[0] = uint32(val)
+	}
+	{
+		val := g.SUB(c.R[3], 255, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 255, val))
+	}
 	if c.Cond(0x0) {
 		goto L_080CEAC8
 	}
 L_080CEAAE:
 	c.NT(16)
-	c.Thumb(0x2BF7)
+	{
+		val := g.SUB(c.R[3], 247, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 247, val))
+	}
 	if c.Cond(0x1) {
 		goto L_080CEAA2
 	}
-	c.Thumb(0x7863)
-	c.Thumb(0x009B)
-	c.Thumb(0x5959)
-	c.Thumb(0x2900)
+	c.R[3] = uint32(c.Memory.Read8(c.R[4]+1, true, false))
+	{
+		v, cy := g.ShiftLSL(c.R[3], 2)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[1] = c.Memory.Read32(c.R[3]+c.R[5], true, false)
+	{
+		val := g.SUB(c.R[1], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[1], 0, val))
+	}
 	if c.Cond(0x0) {
 		goto L_080CEAC0
 	}
@@ -146,17 +198,32 @@ L_080CEAAE:
 	}
 L_080CEAC0:
 	c.NT(8)
-	c.Thumb(0x78A3)
-	c.Thumb(0x3402)
-	c.Thumb(0x2BFF)
+	c.R[3] = uint32(c.Memory.Read8(c.R[4]+2, true, false))
+	{
+		val := g.ADD(c.R[4], 2, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[4], 2, val))
+		c.R[4] = uint32(val)
+	}
+	{
+		val := g.SUB(c.R[3], 255, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 255, val))
+	}
 	if c.Cond(0x1) {
 		goto L_080CEAAE
 	}
 L_080CEAC8:
 	c.NT(8)
-	c.Thumb(0x7003)
-	c.Thumb(0xBC30)
-	c.Thumb(0xBC02)
+	c.Memory.Set8(c.R[0]+0, uint8(c.R[3]), true, false)
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[5] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[1] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[1]
 		if t&^1 == lr&^1 {
@@ -188,11 +255,18 @@ func DynamicPlaceholderTextUtil_GetPlaceholderPtr(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(10)
-	c.R[15] = 0x080CEAD8
-	c.Thumb(0x4B02)
-	c.Thumb(0x0600)
-	c.Thumb(0x0D80)
-	c.Thumb(0x58C0)
+	c.R[3] = c.Memory.Read32(0x080CEAE0, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[0], 24)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSR(c.R[0], 22)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[0] = c.Memory.Read32(c.R[0]+c.R[3], true, false)
 	{
 		t := c.R[14]
 		if t&^1 == lr&^1 {

@@ -15,10 +15,12 @@ func SetUpFieldMove_Teleport(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(14)
-	c.Thumb(0xB500)
-	c.R[15] = 0x08106952
-	c.Thumb(0x4B08)
-	c.Thumb(0x7DD8)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[3] = c.Memory.Read32(0x08106970, true, false)
+	c.R[0] = uint32(c.Memory.Read8(c.R[3]+23, true, false))
 	c.R[14] = 0x08106957
 	c.NCallT(0x0813F918)
 	if c.U != 0 {
@@ -27,14 +29,21 @@ func SetUpFieldMove_Teleport(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2801)
+	{
+		val := g.SUB(c.R[0], 1, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[0], 1, val))
+	}
 	if c.Cond(0x0) {
 		goto L_08106960
 	}
-	c.Thumb(0x2000)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 L_0810695C:
 	c.NT(4)
-	c.Thumb(0xBC02)
+	{
+		c.R[1] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[1]
 		if t&^1 == lr&^1 {
@@ -61,16 +70,12 @@ L_0810695C:
 	}
 L_08106960:
 	c.NT(14)
-	c.R[15] = 0x08106964
-	c.Thumb(0x4B04)
-	c.R[15] = 0x08106966
-	c.Thumb(0x4A05)
-	c.Thumb(0x601A)
-	c.R[15] = 0x0810696A
-	c.Thumb(0x4B05)
-	c.R[15] = 0x0810696C
-	c.Thumb(0x4A05)
-	c.Thumb(0x601A)
+	c.R[3] = c.Memory.Read32(0x08106974, true, false)
+	c.R[2] = c.Memory.Read32(0x08106978, true, false)
+	c.Memory.Set32(c.R[3]+0, c.R[2], true, false)
+	c.R[3] = c.Memory.Read32(0x0810697C, true, false)
+	c.R[2] = c.Memory.Read32(0x08106980, true, false)
+	c.Memory.Set32(c.R[3]+0, c.R[2], true, false)
 	goto L_0810695C
 }
 
@@ -79,7 +84,10 @@ func FieldCallback_Teleport(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(18)
-	c.Thumb(0xB500)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
 	c.R[14] = 0x0810698B
 	c.NCallT(0x0813E344)
 	if c.U != 0 {
@@ -88,7 +96,8 @@ func FieldCallback_Teleport(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x203F)
+	c.R[0] = 63
+	c.SetNZ(int32(63) < 0, 63 == 0)
 	c.R[14] = 0x08106991
 	c.NCallT(0x080EED3C)
 	if c.U != 0 {
@@ -105,10 +114,12 @@ func FieldCallback_Teleport(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x08106998
-	c.Thumb(0x4B01)
-	c.Thumb(0x6018)
-	c.Thumb(0xBC01)
+	c.R[3] = c.Memory.Read32(0x0810699C, true, false)
+	c.Memory.Set32(c.R[3]+0, c.R[0], true, false)
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -140,7 +151,10 @@ func FldEff_UseTeleport(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(32)
-	c.Thumb(0xB500)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
 	c.R[14] = 0x081069A7
 	c.NCallT(0x08106154)
 	if c.U != 0 {
@@ -149,18 +163,39 @@ func FldEff_UseTeleport(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x0082)
-	c.R[15] = 0x081069AC
-	c.Thumb(0x4B06)
-	c.Thumb(0x1812)
-	c.Thumb(0x00D2)
-	c.Thumb(0x1898)
-	c.R[15] = 0x081069B4
-	c.Thumb(0x4B05)
-	c.Thumb(0x0C1A)
-	c.Thumb(0x8302)
-	c.Thumb(0x8343)
-	c.Thumb(0x2001)
+	{
+		v, cy := g.ShiftLSL(c.R[0], 2)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[3] = c.Memory.Read32(0x081069C4, true, false)
+	{
+		op1, op2 := c.R[2], uint32(c.R[0])
+		val := g.ADD(op1, op2, 0)
+		c.R[2] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[2], 3)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		op1, op2 := c.R[3], uint32(c.R[2])
+		val := g.ADD(op1, op2, 0)
+		c.R[0] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
+	c.R[3] = c.Memory.Read32(0x081069C8, true, false)
+	{
+		v, cy := g.ShiftLSR(c.R[3], 16)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set16(c.R[0]+24, uint16(c.R[2]), true, false)
+	c.Memory.Set16(c.R[0]+26, uint16(c.R[3]), true, false)
+	c.R[0] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
 	c.R[14] = 0x081069BF
 	c.NCallT(0x080F4D98)
 	if c.U != 0 {
@@ -169,8 +204,12 @@ func FldEff_UseTeleport(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2000)
-	c.Thumb(0xBC02)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	{
+		c.R[1] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[1]
 		if t&^1 == lr&^1 {
@@ -202,8 +241,12 @@ func StartTeleportFieldEffect(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(12)
-	c.Thumb(0xB500)
-	c.Thumb(0x203F)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[0] = 63
+	c.SetNZ(int32(63) < 0, 63 == 0)
 	c.R[14] = 0x081069D5
 	c.NCallT(0x080EF0FC)
 	if c.U != 0 {
@@ -220,7 +263,10 @@ func StartTeleportFieldEffect(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0xBC01)
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {

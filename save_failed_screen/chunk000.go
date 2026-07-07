@@ -24,35 +24,79 @@ func SaveFailedScreenTextPrint(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(70)
-	c.Thumb(0xB510)
-	c.Thumb(0x46C6)
-	c.Thumb(0x23F0)
-	c.Thumb(0xB500)
-	c.Thumb(0xB086)
-	c.Thumb(0xAC05)
-	c.Thumb(0x011B)
-	c.Thumb(0x8023)
-	c.Thumb(0x2303)
-	c.Thumb(0x70A3)
-	c.Thumb(0x06D3)
-	c.Thumb(0x2280)
-	c.Thumb(0x4684)
-	c.Thumb(0x0452)
-	c.Thumb(0x189B)
-	c.Thumb(0x06CA)
-	c.R[15] = 0x0819D6B0
-	c.Thumb(0x4909)
-	c.Thumb(0x7808)
-	c.Thumb(0x4661)
-	c.Thumb(0x9104)
-	c.Thumb(0x2100)
-	c.Thumb(0x9402)
-	c.Thumb(0x9103)
-	c.Thumb(0x9101)
-	c.Thumb(0x9100)
-	c.Thumb(0x0E1B)
-	c.Thumb(0x0E12)
-	c.Thumb(0x3101)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	c.R[14] = c.R[8]
+	c.R[3] = 240
+	c.SetNZ(int32(240) < 0, 240 == 0)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[13] -= 24
+	c.R[4] = c.R[13] + 20
+	{
+		v, cy := g.ShiftLSL(c.R[3], 4)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set16(c.R[4]+0, uint16(c.R[3]), true, false)
+	c.R[3] = 3
+	c.SetNZ(int32(3) < 0, 3 == 0)
+	c.Memory.Set8(c.R[4]+2, uint8(c.R[3]), true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[2], 27)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[2] = 128
+	c.SetNZ(int32(128) < 0, 128 == 0)
+	c.R[12] = c.R[0]
+	{
+		v, cy := g.ShiftLSL(c.R[2], 17)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		op1, op2 := c.R[3], uint32(c.R[2])
+		val := g.ADD(op1, op2, 0)
+		c.R[3] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[1], 27)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[1] = c.Memory.Read32(0x0819D6D4, true, false)
+	c.R[0] = uint32(c.Memory.Read8(c.R[1]+0, true, false))
+	c.R[1] = c.R[12]
+	c.Memory.Set32(c.R[13]+16, c.R[1], true, false)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.Memory.Set32(c.R[13]+8, c.R[4], true, false)
+	c.Memory.Set32(c.R[13]+12, c.R[1], true, false)
+	c.Memory.Set32(c.R[13]+4, c.R[1], true, false)
+	c.Memory.Set32(c.R[13]+0, c.R[1], true, false)
+	{
+		v, cy := g.ShiftLSR(c.R[3], 24)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSR(c.R[2], 24)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		val := g.ADD(c.R[1], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[1], 1, val))
+		c.R[1] = uint32(val)
+	}
 	c.R[14] = 0x0819D6C9
 	c.NCallT(0x081317C4)
 	if c.U != 0 {
@@ -61,11 +105,20 @@ func SaveFailedScreenTextPrint(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0xB006)
-	c.Thumb(0xBC10)
-	c.Thumb(0x46A0)
-	c.Thumb(0xBC10)
-	c.Thumb(0xBC01)
+	c.R[13] += 24
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	c.R[8] = c.R[4]
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -97,10 +150,18 @@ func DoSaveFailedScreen(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(30)
-	c.Thumb(0xB510)
-	c.Thumb(0x0604)
-	c.R[15] = 0x0819D6E0
-	c.Thumb(0x4806)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[0], 24)
+		c.R[4] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[0] = c.Memory.Read32(0x0819D6F8, true, false)
 	c.R[14] = 0x0819D6E3
 	c.NCallT(0x080005B8)
 	if c.U != 0 {
@@ -109,19 +170,27 @@ func DoSaveFailedScreen(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2200)
-	c.R[15] = 0x0819D6E8
-	c.Thumb(0x4B05)
-	c.Thumb(0x0E24)
-	c.Thumb(0x801C)
-	c.R[15] = 0x0819D6EE
-	c.Thumb(0x4B05)
-	c.Thumb(0x601A)
-	c.R[15] = 0x0819D6F2
-	c.Thumb(0x4B05)
-	c.Thumb(0x801A)
-	c.Thumb(0xBC10)
-	c.Thumb(0xBC01)
+	c.R[2] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[3] = c.Memory.Read32(0x0819D6FC, true, false)
+	{
+		v, cy := g.ShiftLSR(c.R[4], 24)
+		c.R[4] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set16(c.R[3]+0, uint16(c.R[4]), true, false)
+	c.R[3] = c.Memory.Read32(0x0819D700, true, false)
+	c.Memory.Set32(c.R[3]+0, c.R[2], true, false)
+	c.R[3] = c.Memory.Read32(0x0819D704, true, false)
+	c.Memory.Set16(c.R[3]+0, uint16(c.R[2]), true, false)
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -153,7 +222,10 @@ func VBlankCB(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(12)
-	c.Thumb(0xB500)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
 	c.R[14] = 0x0819D70F
 	c.NCallT(0x081B05A4)
 	if c.U != 0 {
@@ -178,7 +250,10 @@ func VBlankCB(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0xBC01)
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -210,24 +285,47 @@ func CB2_SaveFailedScreen(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(22)
-	c.Thumb(0xB5F0)
-	c.Thumb(0x46C6)
-	c.Thumb(0x2787)
-	c.Thumb(0xB500)
-	c.R[15] = 0x0819D728
-	c.Thumb(0x4E93)
-	c.Thumb(0x00FF)
-	c.Thumb(0x5DF3)
-	c.Thumb(0xB08A)
-	c.Thumb(0x2B01)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[7], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[6], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[5], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	c.R[14] = c.R[8]
+	c.R[7] = 135
+	c.SetNZ(int32(135) < 0, 135 == 0)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[6] = c.Memory.Read32(0x0819D974, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[7], 3)
+		c.R[7] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[3] = uint32(c.Memory.Read8(c.R[6]+c.R[7], true, false))
+	c.R[13] -= 40
+	{
+		val := g.SUB(c.R[3], 1, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 1, val))
+	}
 	if c.Cond(0x1) {
 		goto L_0819D732
 	}
 	goto L_0819D95E
 L_0819D732:
 	c.NT(444)
-	c.Thumb(0x2500)
-	c.Thumb(0x2000)
+	c.R[5] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 	c.R[14] = 0x0819D73B
 	c.NCallT(0x08000760)
 	if c.U != 0 {
@@ -236,8 +334,10 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2100)
-	c.Thumb(0x2000)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 	c.R[14] = 0x0819D743
 	c.NCallT(0x0810BD34)
 	if c.U != 0 {
@@ -246,8 +346,10 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2100)
-	c.Thumb(0x200E)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = 14
+	c.SetNZ(int32(14) < 0, 14 == 0)
 	c.R[14] = 0x0819D74B
 	c.NCallT(0x0810BD34)
 	if c.U != 0 {
@@ -256,8 +358,10 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2100)
-	c.Thumb(0x200C)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = 12
+	c.SetNZ(int32(12) < 0, 12 == 0)
 	c.R[14] = 0x0819D753
 	c.NCallT(0x0810BD34)
 	if c.U != 0 {
@@ -266,8 +370,10 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2100)
-	c.Thumb(0x200A)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = 10
+	c.SetNZ(int32(10) < 0, 10 == 0)
 	c.R[14] = 0x0819D75B
 	c.NCallT(0x0810BD34)
 	if c.U != 0 {
@@ -276,8 +382,10 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2100)
-	c.Thumb(0x2008)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = 8
+	c.SetNZ(int32(8) < 0, 8 == 0)
 	c.R[14] = 0x0819D763
 	c.NCallT(0x0810BD34)
 	if c.U != 0 {
@@ -286,8 +394,10 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2100)
-	c.Thumb(0x201C)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = 28
+	c.SetNZ(int32(28) < 0, 28 == 0)
 	c.R[14] = 0x0819D76B
 	c.NCallT(0x0810BD34)
 	if c.U != 0 {
@@ -296,8 +406,10 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2100)
-	c.Thumb(0x201E)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = 30
+	c.SetNZ(int32(30) < 0, 30 == 0)
 	c.R[14] = 0x0819D773
 	c.NCallT(0x0810BD34)
 	if c.U != 0 {
@@ -306,8 +418,10 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2100)
-	c.Thumb(0x2018)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = 24
+	c.SetNZ(int32(24) < 0, 24 == 0)
 	c.R[14] = 0x0819D77B
 	c.NCallT(0x0810BD34)
 	if c.U != 0 {
@@ -316,8 +430,10 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2100)
-	c.Thumb(0x201A)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = 26
+	c.SetNZ(int32(26) < 0, 26 == 0)
 	c.R[14] = 0x0819D783
 	c.NCallT(0x0810BD34)
 	if c.U != 0 {
@@ -326,8 +442,10 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2100)
-	c.Thumb(0x2014)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = 20
+	c.SetNZ(int32(20) < 0, 20 == 0)
 	c.R[14] = 0x0819D78B
 	c.NCallT(0x0810BD34)
 	if c.U != 0 {
@@ -336,8 +454,10 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2100)
-	c.Thumb(0x2016)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = 22
+	c.SetNZ(int32(22) < 0, 22 == 0)
 	c.R[14] = 0x0819D793
 	c.NCallT(0x0810BD34)
 	if c.U != 0 {
@@ -346,8 +466,10 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2100)
-	c.Thumb(0x2010)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = 16
+	c.SetNZ(int32(16) < 0, 16 == 0)
 	c.R[14] = 0x0819D79B
 	c.NCallT(0x0810BD34)
 	if c.U != 0 {
@@ -356,8 +478,10 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2100)
-	c.Thumb(0x2012)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = 18
+	c.SetNZ(int32(18) < 0, 18 == 0)
 	c.R[14] = 0x0819D7A3
 	c.NCallT(0x0810BD34)
 	if c.U != 0 {
@@ -366,48 +490,62 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819D7A6
-	c.Thumb(0x4875)
-	c.Thumb(0xAB06)
-	c.Thumb(0x801D)
-	c.Thumb(0x6003)
-	c.Thumb(0x23C0)
-	c.R[15] = 0x0819D7B0
-	c.Thumb(0x4A73)
-	c.Thumb(0x04DB)
-	c.Thumb(0x6013)
-	c.Thumb(0x4698)
-	c.R[15] = 0x0819D7B8
-	c.Thumb(0x4C72)
-	c.R[15] = 0x0819D7BA
-	c.Thumb(0x4B73)
-	c.Thumb(0x601C)
-	c.Thumb(0x681C)
-	c.Thumb(0xAC08)
-	c.Thumb(0x9508)
-	c.Thumb(0x6004)
-	c.Thumb(0x24E0)
-	c.Thumb(0x04E4)
-	c.Thumb(0x6014)
-	c.R[15] = 0x0819D7CC
-	c.Thumb(0x4C6F)
-	c.Thumb(0x601C)
-	c.Thumb(0x681C)
-	c.Thumb(0x2416)
-	c.Thumb(0xA901)
-	c.Thumb(0x1864)
-	c.Thumb(0x8025)
-	c.Thumb(0x6004)
-	c.Thumb(0x20A0)
-	c.Thumb(0x04C0)
-	c.Thumb(0x6010)
-	c.R[15] = 0x0819D7E2
-	c.Thumb(0x4A6B)
-	c.Thumb(0x601A)
-	c.Thumb(0x4641)
-	c.R[15] = 0x0819D7E8
-	c.Thumb(0x486A)
-	c.Thumb(0x681B)
+	c.R[0] = c.Memory.Read32(0x0819D978, true, false)
+	c.R[3] = c.R[13] + 24
+	c.Memory.Set16(c.R[3]+0, uint16(c.R[5]), true, false)
+	c.Memory.Set32(c.R[0]+0, c.R[3], true, false)
+	c.R[3] = 192
+	c.SetNZ(int32(192) < 0, 192 == 0)
+	c.R[2] = c.Memory.Read32(0x0819D97C, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[3], 19)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set32(c.R[2]+0, c.R[3], true, false)
+	c.R[8] = c.R[3]
+	c.R[4] = c.Memory.Read32(0x0819D980, true, false)
+	c.R[3] = c.Memory.Read32(0x0819D984, true, false)
+	c.Memory.Set32(c.R[3]+0, c.R[4], true, false)
+	c.R[4] = c.Memory.Read32(c.R[3]+0, true, false)
+	c.R[4] = c.R[13] + 32
+	c.Memory.Set32(c.R[13]+32, c.R[5], true, false)
+	c.Memory.Set32(c.R[0]+0, c.R[4], true, false)
+	c.R[4] = 224
+	c.SetNZ(int32(224) < 0, 224 == 0)
+	{
+		v, cy := g.ShiftLSL(c.R[4], 19)
+		c.R[4] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set32(c.R[2]+0, c.R[4], true, false)
+	c.R[4] = c.Memory.Read32(0x0819D988, true, false)
+	c.Memory.Set32(c.R[3]+0, c.R[4], true, false)
+	c.R[4] = c.Memory.Read32(c.R[3]+0, true, false)
+	c.R[4] = 22
+	c.SetNZ(int32(22) < 0, 22 == 0)
+	c.R[1] = c.R[13] + 4
+	{
+		op1, op2 := c.R[4], uint32(c.R[1])
+		val := g.ADD(op1, op2, 0)
+		c.R[4] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
+	c.Memory.Set16(c.R[4]+0, uint16(c.R[5]), true, false)
+	c.Memory.Set32(c.R[0]+0, c.R[4], true, false)
+	c.R[0] = 160
+	c.SetNZ(int32(160) < 0, 160 == 0)
+	{
+		v, cy := g.ShiftLSL(c.R[0], 19)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set32(c.R[2]+0, c.R[0], true, false)
+	c.R[2] = c.Memory.Read32(0x0819D98C, true, false)
+	c.Memory.Set32(c.R[3]+0, c.R[2], true, false)
+	c.R[1] = c.R[8]
+	c.R[0] = c.Memory.Read32(0x0819D990, true, false)
+	c.R[3] = c.Memory.Read32(c.R[3]+0, true, false)
 	c.R[14] = 0x0819D7ED
 	c.NCallT(0x082E482C)
 	if c.U != 0 {
@@ -416,10 +554,8 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819D7F0
-	c.Thumb(0x4869)
-	c.R[15] = 0x0819D7F2
-	c.Thumb(0x496A)
+	c.R[0] = c.Memory.Read32(0x0819D994, true, false)
+	c.R[1] = c.Memory.Read32(0x0819D998, true, false)
 	c.R[14] = 0x0819D7F5
 	c.NCallT(0x082E482C)
 	if c.U != 0 {
@@ -428,10 +564,8 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819D7F8
-	c.Thumb(0x4869)
-	c.R[15] = 0x0819D7FA
-	c.Thumb(0x496A)
+	c.R[0] = c.Memory.Read32(0x0819D99C, true, false)
+	c.R[1] = c.Memory.Read32(0x0819D9A0, true, false)
 	c.R[14] = 0x0819D7FD
 	c.NCallT(0x082E482C)
 	if c.U != 0 {
@@ -440,10 +574,8 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819D800
-	c.Thumb(0x4969)
-	c.R[15] = 0x0819D802
-	c.Thumb(0x486A)
+	c.R[1] = c.Memory.Read32(0x0819D9A4, true, false)
+	c.R[0] = c.Memory.Read32(0x0819D9A8, true, false)
 	c.R[14] = 0x0819D805
 	c.NCallT(0x082E482C)
 	if c.U != 0 {
@@ -452,7 +584,8 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2000)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 	c.R[14] = 0x0819D80B
 	c.NCallT(0x080A7760)
 	if c.U != 0 {
@@ -461,10 +594,11 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2203)
-	c.Thumb(0x2000)
-	c.R[15] = 0x0819D812
-	c.Thumb(0x4967)
+	c.R[2] = 3
+	c.SetNZ(int32(3) < 0, 3 == 0)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[1] = c.Memory.Read32(0x0819D9AC, true, false)
 	c.R[14] = 0x0819D815
 	c.NCallT(0x080A77A8)
 	if c.U != 0 {
@@ -473,11 +607,12 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819D818
-	c.Thumb(0x4B66)
-	c.Thumb(0x4698)
-	c.Thumb(0x0019)
-	c.Thumb(0x2000)
+	c.R[3] = c.Memory.Read32(0x0819D9B0, true, false)
+	c.R[8] = c.R[3]
+	c.R[1] = c.R[3]
+	c.SetNZ(int32(c.R[1]) < 0, c.R[1] == 0)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 	c.R[14] = 0x0819D821
 	c.NCallT(0x080A81C0)
 	if c.U != 0 {
@@ -486,11 +621,10 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x4641)
-	c.R[15] = 0x0819D826
-	c.Thumb(0x4A64)
-	c.Thumb(0xA809)
-	c.Thumb(0x9509)
+	c.R[1] = c.R[8]
+	c.R[2] = c.Memory.Read32(0x0819D9B4, true, false)
+	c.R[0] = c.R[13] + 36
+	c.Memory.Set32(c.R[13]+36, c.R[5], true, false)
 	c.R[14] = 0x0819D82D
 	c.NCallT(0x082E4850)
 	if c.U != 0 {
@@ -499,13 +633,23 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2385)
-	c.Thumb(0x2290)
-	c.R[15] = 0x0819D834
-	c.Thumb(0x4961)
-	c.Thumb(0x009B)
-	c.Thumb(0x0052)
-	c.Thumb(0x2000)
+	c.R[3] = 133
+	c.SetNZ(int32(133) < 0, 133 == 0)
+	c.R[2] = 144
+	c.SetNZ(int32(144) < 0, 144 == 0)
+	c.R[1] = c.Memory.Read32(0x0819D9B8, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[3], 2)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[2], 1)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 	c.R[14] = 0x0819D83D
 	c.NCallT(0x080A7934)
 	if c.U != 0 {
@@ -514,8 +658,7 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819D840
-	c.Thumb(0x485F)
+	c.R[0] = c.Memory.Read32(0x0819D9BC, true, false)
 	c.R[14] = 0x0819D843
 	c.NCallT(0x081DF61C)
 	if c.U != 0 {
@@ -524,8 +667,7 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819D846
-	c.Thumb(0x485F)
+	c.R[0] = c.Memory.Read32(0x0819D9C0, true, false)
 	c.R[14] = 0x0819D849
 	c.NCallT(0x081DF900)
 	if c.U != 0 {
@@ -534,17 +676,35 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2280)
-	c.Thumb(0x4643)
-	c.Thumb(0x21FF)
-	c.R[15] = 0x0819D852
-	c.Thumb(0x4C5D)
-	c.Thumb(0x0112)
-	c.Thumb(0x18D2)
-	c.Thumb(0x7020)
-	c.Thumb(0x4008)
-	c.Thumb(0x39F8)
-	c.Thumb(0x9305)
+	c.R[2] = 128
+	c.SetNZ(int32(128) < 0, 128 == 0)
+	c.R[3] = c.R[8]
+	c.R[1] = 255
+	c.SetNZ(int32(255) < 0, 255 == 0)
+	c.R[4] = c.Memory.Read32(0x0819D9C4, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[2], 4)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		op1, op2 := c.R[2], uint32(c.R[3])
+		val := g.ADD(op1, op2, 0)
+		c.R[2] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
+	c.Memory.Set8(c.R[4]+0, uint8(c.R[0]), true, false)
+	{
+		v := uint32(c.R[0] & c.R[1])
+		c.R[0] = v
+		c.SetNZ(int32(v) < 0, v == 0)
+	}
+	{
+		val := g.SUB(c.R[1], 248, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[1], 248, val))
+		c.R[1] = uint32(val)
+	}
+	c.Memory.Set32(c.R[13]+20, c.R[3], true, false)
 	c.R[14] = 0x0819D861
 	c.NCallT(0x081E03B4)
 	if c.U != 0 {
@@ -553,8 +713,7 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819D864
-	c.Thumb(0x4859)
+	c.R[0] = c.Memory.Read32(0x0819D9C8, true, false)
 	c.R[14] = 0x0819D867
 	c.NCallT(0x081DF900)
 	if c.U != 0 {
@@ -563,14 +722,33 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x23E8)
-	c.Thumb(0x21FF)
-	c.Thumb(0x9A05)
-	c.Thumb(0x015B)
-	c.Thumb(0x18D2)
-	c.Thumb(0x7060)
-	c.Thumb(0x4008)
-	c.Thumb(0x39F8)
+	c.R[3] = 232
+	c.SetNZ(int32(232) < 0, 232 == 0)
+	c.R[1] = 255
+	c.SetNZ(int32(255) < 0, 255 == 0)
+	c.R[2] = c.Memory.Read32(c.R[13]+20, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[3], 5)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		op1, op2 := c.R[2], uint32(c.R[3])
+		val := g.ADD(op1, op2, 0)
+		c.R[2] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
+	c.Memory.Set8(c.R[4]+1, uint8(c.R[0]), true, false)
+	{
+		v := uint32(c.R[0] & c.R[1])
+		c.R[0] = v
+		c.SetNZ(int32(v) < 0, v == 0)
+	}
+	{
+		val := g.SUB(c.R[1], 248, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[1], 248, val))
+		c.R[1] = uint32(val)
+	}
 	c.R[14] = 0x0819D87B
 	c.NCallT(0x081E03B4)
 	if c.U != 0 {
@@ -611,10 +789,11 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2240)
-	c.Thumb(0x2100)
-	c.R[15] = 0x0819D892
-	c.Thumb(0x484F)
+	c.R[2] = 64
+	c.SetNZ(int32(64) < 0, 64 == 0)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = c.Memory.Read32(0x0819D9CC, true, false)
 	c.R[14] = 0x0819D895
 	c.NCallT(0x08142C68)
 	if c.U != 0 {
@@ -623,11 +802,16 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2180)
-	c.Thumb(0x2220)
-	c.R[15] = 0x0819D89C
-	c.Thumb(0x484D)
-	c.Thumb(0x0049)
+	c.R[1] = 128
+	c.SetNZ(int32(128) < 0, 128 == 0)
+	c.R[2] = 32
+	c.SetNZ(int32(32) < 0, 32 == 0)
+	c.R[0] = c.Memory.Read32(0x0819D9D0, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[1], 1)
+		c.R[1] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
 	c.R[14] = 0x0819D8A1
 	c.NCallT(0x08142C68)
 	if c.U != 0 {
@@ -636,10 +820,11 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2220)
-	c.Thumb(0x21E0)
-	c.R[15] = 0x0819D8A8
-	c.Thumb(0x484B)
+	c.R[2] = 32
+	c.SetNZ(int32(32) < 0, 32 == 0)
+	c.R[1] = 224
+	c.SetNZ(int32(224) < 0, 224 == 0)
+	c.R[0] = c.Memory.Read32(0x0819D9D4, true, false)
 	c.R[14] = 0x0819D8AB
 	c.NCallT(0x08142C68)
 	if c.U != 0 {
@@ -648,10 +833,11 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2220)
-	c.Thumb(0x21F0)
-	c.R[15] = 0x0819D8B2
-	c.Thumb(0x484A)
+	c.R[2] = 32
+	c.SetNZ(int32(32) < 0, 32 == 0)
+	c.R[1] = 240
+	c.SetNZ(int32(240) < 0, 240 == 0)
+	c.R[0] = c.Memory.Read32(0x0819D9D8, true, false)
 	c.R[14] = 0x0819D8B5
 	c.NCallT(0x08142C68)
 	if c.U != 0 {
@@ -660,11 +846,18 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2285)
-	c.Thumb(0x230E)
-	c.Thumb(0x2100)
-	c.Thumb(0x7820)
-	c.Thumb(0x0092)
+	c.R[2] = 133
+	c.SetNZ(int32(133) < 0, 133 == 0)
+	c.R[3] = 14
+	c.SetNZ(int32(14) < 0, 14 == 0)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = uint32(c.Memory.Read8(c.R[4]+0, true, false))
+	{
+		v, cy := g.ShiftLSL(c.R[2], 2)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
 	c.R[14] = 0x0819D8C3
 	c.NCallT(0x0812F67C)
 	if c.U != 0 {
@@ -673,11 +866,18 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2285)
-	c.Thumb(0x230E)
-	c.Thumb(0x0092)
-	c.Thumb(0x2100)
-	c.Thumb(0x7860)
+	c.R[2] = 133
+	c.SetNZ(int32(133) < 0, 133 == 0)
+	c.R[3] = 14
+	c.SetNZ(int32(14) < 0, 14 == 0)
+	{
+		v, cy := g.ShiftLSL(c.R[2], 2)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = uint32(c.Memory.Read8(c.R[4]+1, true, false))
 	c.R[14] = 0x0819D8D1
 	c.NCallT(0x0812F67C)
 	if c.U != 0 {
@@ -686,8 +886,9 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2111)
-	c.Thumb(0x7860)
+	c.R[1] = 17
+	c.SetNZ(int32(17) < 0, 17 == 0)
+	c.R[0] = uint32(c.Memory.Read8(c.R[4]+1, true, false))
 	c.R[14] = 0x0819D8D9
 	c.NCallT(0x081DFFD4)
 	if c.U != 0 {
@@ -696,8 +897,9 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2111)
-	c.Thumb(0x7820)
+	c.R[1] = 17
+	c.SetNZ(int32(17) < 0, 17 == 0)
+	c.R[0] = uint32(c.Memory.Read8(c.R[4]+0, true, false))
 	c.R[14] = 0x0819D8E1
 	c.NCallT(0x081DFFD4)
 	if c.U != 0 {
@@ -706,8 +908,9 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2102)
-	c.Thumb(0x7860)
+	c.R[1] = 2
+	c.SetNZ(int32(2) < 0, 2 == 0)
+	c.R[0] = uint32(c.Memory.Read8(c.R[4]+1, true, false))
 	c.R[14] = 0x0819D8E9
 	c.NCallT(0x081DFA9C)
 	if c.U != 0 {
@@ -716,8 +919,9 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2101)
-	c.Thumb(0x7820)
+	c.R[1] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.R[0] = uint32(c.Memory.Read8(c.R[4]+0, true, false))
 	c.R[14] = 0x0819D8F1
 	c.NCallT(0x081DFA9C)
 	if c.U != 0 {
@@ -726,23 +930,31 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x22F0)
-	c.Thumb(0xAB07)
-	c.Thumb(0x0112)
-	c.Thumb(0x801A)
-	c.Thumb(0x2203)
-	c.Thumb(0x709A)
-	c.R[15] = 0x0819D900
-	c.Thumb(0x4A37)
-	c.Thumb(0x7820)
-	c.Thumb(0x2101)
-	c.Thumb(0x9204)
-	c.Thumb(0x9302)
-	c.Thumb(0x2208)
-	c.Thumb(0x2301)
-	c.Thumb(0x9503)
-	c.Thumb(0x9501)
-	c.Thumb(0x9500)
+	c.R[2] = 240
+	c.SetNZ(int32(240) < 0, 240 == 0)
+	c.R[3] = c.R[13] + 28
+	{
+		v, cy := g.ShiftLSL(c.R[2], 4)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set16(c.R[3]+0, uint16(c.R[2]), true, false)
+	c.R[2] = 3
+	c.SetNZ(int32(3) < 0, 3 == 0)
+	c.Memory.Set8(c.R[3]+2, uint8(c.R[2]), true, false)
+	c.R[2] = c.Memory.Read32(0x0819D9DC, true, false)
+	c.R[0] = uint32(c.Memory.Read8(c.R[4]+0, true, false))
+	c.R[1] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.Memory.Set32(c.R[13]+16, c.R[2], true, false)
+	c.Memory.Set32(c.R[13]+8, c.R[3], true, false)
+	c.R[2] = 8
+	c.SetNZ(int32(8) < 0, 8 == 0)
+	c.R[3] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.Memory.Set32(c.R[13]+12, c.R[5], true, false)
+	c.Memory.Set32(c.R[13]+4, c.R[5], true, false)
+	c.Memory.Set32(c.R[13]+0, c.R[5], true, false)
 	c.R[14] = 0x0819D915
 	c.NCallT(0x081317C4)
 	if c.U != 0 {
@@ -751,12 +963,21 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2001)
-	c.Thumb(0x2300)
-	c.Thumb(0x2210)
-	c.Thumb(0x2100)
-	c.Thumb(0x9500)
-	c.Thumb(0x4240)
+	c.R[0] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.R[3] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[2] = 16
+	c.SetNZ(int32(16) < 0, 16 == 0)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.Memory.Set32(c.R[13]+0, c.R[5], true, false)
+	{
+		val := g.SUB(0, c.R[0], 0)
+		v := uint32(val)
+		c.R[0] = v
+		c.SetNZCV(g.FlagArithSub(0, c.R[0], val))
+	}
 	c.R[14] = 0x0819D925
 	c.NCallT(0x08142E80)
 	if c.U != 0 {
@@ -765,7 +986,8 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2001)
+	c.R[0] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
 	c.R[14] = 0x0819D92B
 	c.NCallT(0x0810BEDC)
 	if c.U != 0 {
@@ -774,8 +996,7 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819D92E
-	c.Thumb(0x482D)
+	c.R[0] = c.Memory.Read32(0x0819D9E0, true, false)
 	c.R[14] = 0x0819D931
 	c.NCallT(0x08000760)
 	if c.U != 0 {
@@ -784,9 +1005,15 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2182)
-	c.Thumb(0x2000)
-	c.Thumb(0x0149)
+	c.R[1] = 130
+	c.SetNZ(int32(130) < 0, 130 == 0)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	{
+		v, cy := g.ShiftLSL(c.R[1], 5)
+		c.R[1] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
 	c.R[14] = 0x0819D93B
 	c.NCallT(0x0810BD34)
 	if c.U != 0 {
@@ -795,7 +1022,8 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2000)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 	c.R[14] = 0x0819D941
 	c.NCallT(0x080A7B54)
 	if c.U != 0 {
@@ -804,7 +1032,8 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2002)
+	c.R[0] = 2
+	c.SetNZ(int32(2) < 0, 2 == 0)
 	c.R[14] = 0x0819D947
 	c.NCallT(0x080A7B54)
 	if c.U != 0 {
@@ -813,7 +1042,8 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2003)
+	c.R[0] = 3
+	c.SetNZ(int32(3) < 0, 3 == 0)
 	c.R[14] = 0x0819D94D
 	c.NCallT(0x080A7B54)
 	if c.U != 0 {
@@ -822,16 +1052,35 @@ L_0819D732:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x5DF3)
-	c.Thumb(0x3301)
-	c.Thumb(0x55F3)
+	c.R[3] = uint32(c.Memory.Read8(c.R[6]+c.R[7], true, false))
+	{
+		val := g.ADD(c.R[3], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[3], 1, val))
+		c.R[3] = uint32(val)
+	}
+	c.Memory.Set8(c.R[6]+c.R[7], uint8(c.R[3]), true, false)
 L_0819D952:
 	c.NT(12)
-	c.Thumb(0xB00A)
-	c.Thumb(0xBC80)
-	c.Thumb(0x46B8)
-	c.Thumb(0xBCF0)
-	c.Thumb(0xBC01)
+	c.R[13] += 40
+	{
+		c.R[7] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	c.R[8] = c.R[7]
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[5] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[6] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[7] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -866,12 +1115,14 @@ L_0819D95E:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2800)
+	{
+		val := g.SUB(c.R[0], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[0], 0, val))
+	}
 	if c.Cond(0x1) {
 		goto L_0819D952
 	}
-	c.R[15] = 0x0819D96A
-	c.Thumb(0x481F)
+	c.R[0] = c.Memory.Read32(0x0819D9E4, true, false)
 	c.R[14] = 0x0819D96D
 	c.NCallT(0x080005B8)
 	if c.U != 0 {
@@ -880,8 +1131,7 @@ L_0819D95E:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819D970
-	c.Thumb(0x481E)
+	c.R[0] = c.Memory.Read32(0x0819D9E8, true, false)
 	c.R[14] = 0x0819D973
 	c.NCallT(0x08000760)
 	if c.U != 0 {
@@ -898,65 +1148,107 @@ func CB2_WipeSave(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(32)
-	c.Thumb(0xB5F0)
-	c.Thumb(0x4657)
-	c.Thumb(0x4645)
-	c.Thumb(0x46DE)
-	c.Thumb(0x464E)
-	c.Thumb(0x2201)
-	c.Thumb(0xB5E0)
-	c.R[15] = 0x0819D9FE
-	c.Thumb(0x4B69)
-	c.Thumb(0xB089)
-	c.Thumb(0x801A)
-	c.R[15] = 0x0819DA04
-	c.Thumb(0x4B68)
-	c.Thumb(0x681D)
-	c.Thumb(0x469A)
-	c.Thumb(0x2D00)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[7], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[6], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[5], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	c.R[7] = c.R[10]
+	c.R[5] = c.R[8]
+	c.R[14] = c.R[11]
+	c.R[6] = c.R[9]
+	c.R[2] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[7], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[6], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[5], true, false)
+	}
+	c.R[3] = c.Memory.Read32(0x0819DBA0, true, false)
+	c.R[13] -= 36
+	c.Memory.Set16(c.R[3]+0, uint16(c.R[2]), true, false)
+	c.R[3] = c.Memory.Read32(0x0819DBA4, true, false)
+	c.R[5] = c.Memory.Read32(c.R[3]+0, true, false)
+	c.R[10] = c.R[3]
+	{
+		val := g.SUB(c.R[5], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[5], 0, val))
+	}
 	if c.Cond(0x1) {
 		goto L_0819DA0C
 	}
 	goto L_0819DB98
 L_0819DA0C:
 	c.NT(24)
-	c.Thumb(0x2300)
-	c.R[15] = 0x0819DA12
-	c.Thumb(0x4C66)
-	c.Thumb(0x46A1)
-	c.Thumb(0x4698)
-	c.Thumb(0xAB08)
-	c.Thumb(0x469B)
-	c.R[15] = 0x0819DA1C
-	c.Thumb(0x4B64)
-	c.Thumb(0x9305)
-	c.R[15] = 0x0819DA20
-	c.Thumb(0x4B64)
-	c.Thumb(0x9306)
-	c.R[15] = 0x0819DA24
-	c.Thumb(0x4B64)
-	c.Thumb(0x9307)
+	c.R[3] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[4] = c.Memory.Read32(0x0819DBA8, true, false)
+	c.R[9] = c.R[4]
+	c.R[8] = c.R[3]
+	c.R[3] = c.R[13] + 32
+	c.R[11] = c.R[3]
+	c.R[3] = c.Memory.Read32(0x0819DBAC, true, false)
+	c.Memory.Set32(c.R[13]+20, c.R[3], true, false)
+	c.R[3] = c.Memory.Read32(0x0819DBB0, true, false)
+	c.Memory.Set32(c.R[13]+24, c.R[3], true, false)
+	c.R[3] = c.Memory.Read32(0x0819DBB4, true, false)
+	c.Memory.Set32(c.R[13]+28, c.R[3], true, false)
 L_0819DA24:
 	c.NT(6)
-	c.Thumb(0x2400)
-	c.Thumb(0x2701)
+	c.R[4] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[7] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
 	goto L_0819DA30
 L_0819DA2A:
 	c.NT(6)
-	c.Thumb(0x3401)
-	c.Thumb(0x2C20)
+	{
+		val := g.ADD(c.R[4], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[4], 1, val))
+		c.R[4] = uint32(val)
+	}
+	{
+		val := g.SUB(c.R[4], 32, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[4], 32, val))
+	}
 	if c.Cond(0x0) {
 		goto L_0819DA4A
 	}
 L_0819DA30:
 	c.NT(24)
-	c.Thumb(0x003E)
-	c.Thumb(0x40A6)
-	c.Thumb(0x4235)
+	c.R[6] = c.R[7]
+	c.SetNZ(int32(c.R[6]) < 0, c.R[6] == 0)
+	{
+		amount := c.R[4] & 0xFF
+		v, carry := g.ShiftLSL(c.R[6], amount)
+		c.R[6] = v
+		if amount > 0 {
+			c.SetNZC(int32(v) < 0, v == 0, carry)
+		} else {
+			c.SetNZ(int32(v) < 0, v == 0)
+		}
+	}
+	{
+		v := c.R[5] & c.R[6]
+		c.SetNZ(int32(v) < 0, v == 0)
+	}
 	if c.Cond(0x0) {
 		goto L_0819DA2A
 	}
-	c.Thumb(0x0020)
+	c.R[0] = c.R[4]
+	c.SetNZ(int32(c.R[0]) < 0, c.R[0] == 0)
 	c.R[14] = 0x0819DA3F
 	WipeSector(c)
 	if c.U != 0 {
@@ -965,25 +1257,43 @@ L_0819DA30:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2800)
+	{
+		val := g.SUB(c.R[0], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[0], 0, val))
+	}
 	if c.Cond(0x1) {
 		goto L_0819DA2A
 	}
-	c.Thumb(0x3401)
-	c.Thumb(0x43B5)
-	c.Thumb(0x2C20)
+	{
+		val := g.ADD(c.R[4], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[4], 1, val))
+		c.R[4] = uint32(val)
+	}
+	{
+		v := uint32(c.R[5] &^ c.R[6])
+		c.R[5] = v
+		c.SetNZ(int32(v) < 0, v == 0)
+	}
+	{
+		val := g.SUB(c.R[4], 32, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[4], 32, val))
+	}
 	if c.Cond(0x1) {
 		goto L_0819DA30
 	}
 L_0819DA4A:
 	c.NT(54)
-	c.Thumb(0x464B)
-	c.Thumb(0x7818)
-	c.Thumb(0x2D00)
+	c.R[3] = c.R[9]
+	c.R[0] = uint32(c.Memory.Read8(c.R[3]+0, true, false))
+	{
+		val := g.SUB(c.R[5], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[5], 0, val))
+	}
 	if c.Cond(0x0) {
 		goto L_0819DA98
 	}
-	c.Thumb(0x2111)
+	c.R[1] = 17
+	c.SetNZ(int32(17) < 0, 17 == 0)
 	c.R[14] = 0x0819DA59
 	c.NCallT(0x081DFFD4)
 	if c.U != 0 {
@@ -992,25 +1302,37 @@ L_0819DA4A:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x23F0)
-	c.Thumb(0x465A)
-	c.Thumb(0x011B)
-	c.Thumb(0x8013)
-	c.Thumb(0x2303)
-	c.Thumb(0x464C)
-	c.Thumb(0x7093)
-	c.R[15] = 0x0819DA6A
-	c.Thumb(0x4B54)
-	c.Thumb(0x7820)
-	c.Thumb(0x9304)
-	c.Thumb(0x2300)
-	c.Thumb(0x9202)
-	c.Thumb(0x9303)
-	c.Thumb(0x9301)
-	c.Thumb(0x9300)
-	c.Thumb(0x2208)
-	c.Thumb(0x2101)
-	c.Thumb(0x3301)
+	c.R[3] = 240
+	c.SetNZ(int32(240) < 0, 240 == 0)
+	c.R[2] = c.R[11]
+	{
+		v, cy := g.ShiftLSL(c.R[3], 4)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set16(c.R[2]+0, uint16(c.R[3]), true, false)
+	c.R[3] = 3
+	c.SetNZ(int32(3) < 0, 3 == 0)
+	c.R[4] = c.R[9]
+	c.Memory.Set8(c.R[2]+2, uint8(c.R[3]), true, false)
+	c.R[3] = c.Memory.Read32(0x0819DBB8, true, false)
+	c.R[0] = uint32(c.Memory.Read8(c.R[4]+0, true, false))
+	c.Memory.Set32(c.R[13]+16, c.R[3], true, false)
+	c.R[3] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.Memory.Set32(c.R[13]+8, c.R[2], true, false)
+	c.Memory.Set32(c.R[13]+12, c.R[3], true, false)
+	c.Memory.Set32(c.R[13]+4, c.R[3], true, false)
+	c.Memory.Set32(c.R[13]+0, c.R[3], true, false)
+	c.R[2] = 8
+	c.SetNZ(int32(8) < 0, 8 == 0)
+	c.R[1] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	{
+		val := g.ADD(c.R[3], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[3], 1, val))
+		c.R[3] = uint32(val)
+	}
 	c.R[14] = 0x0819DA81
 	c.NCallT(0x081317C4)
 	if c.U != 0 {
@@ -1019,8 +1341,7 @@ L_0819DA4A:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819DA84
-	c.Thumb(0x484E)
+	c.R[0] = c.Memory.Read32(0x0819DBBC, true, false)
 	c.R[14] = 0x0819DA87
 	c.NCallT(0x080005B8)
 	if c.U != 0 {
@@ -1031,14 +1352,35 @@ L_0819DA4A:
 	}
 L_0819DA86:
 	c.NT(18)
-	c.Thumb(0xB009)
-	c.Thumb(0xBCF0)
-	c.Thumb(0x46BB)
-	c.Thumb(0x46B2)
-	c.Thumb(0x46A9)
-	c.Thumb(0x46A0)
-	c.Thumb(0xBCF0)
-	c.Thumb(0xBC01)
+	c.R[13] += 36
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[5] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[6] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[7] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	c.R[11] = c.R[7]
+	c.R[10] = c.R[6]
+	c.R[9] = c.R[5]
+	c.R[8] = c.R[4]
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[5] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[6] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[7] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -1065,8 +1407,10 @@ L_0819DA86:
 	}
 L_0819DA98:
 	c.NT(66)
-	c.Thumb(0x2111)
-	c.Thumb(0x27F0)
+	c.R[1] = 17
+	c.SetNZ(int32(17) < 0, 17 == 0)
+	c.R[7] = 240
+	c.SetNZ(int32(240) < 0, 240 == 0)
 	c.R[14] = 0x0819DAA1
 	c.NCallT(0x081DFFD4)
 	if c.U != 0 {
@@ -1075,23 +1419,31 @@ L_0819DA98:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2603)
-	c.Thumb(0x465B)
-	c.Thumb(0x013F)
-	c.Thumb(0x801F)
-	c.Thumb(0x709E)
-	c.Thumb(0x464B)
-	c.Thumb(0x7818)
-	c.Thumb(0x9B05)
-	c.Thumb(0x9304)
-	c.Thumb(0x465B)
-	c.Thumb(0x2208)
-	c.Thumb(0x2101)
-	c.Thumb(0x9302)
-	c.Thumb(0x9503)
-	c.Thumb(0x2301)
-	c.Thumb(0x9501)
-	c.Thumb(0x9500)
+	c.R[6] = 3
+	c.SetNZ(int32(3) < 0, 3 == 0)
+	c.R[3] = c.R[11]
+	{
+		v, cy := g.ShiftLSL(c.R[7], 4)
+		c.R[7] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set16(c.R[3]+0, uint16(c.R[7]), true, false)
+	c.Memory.Set8(c.R[3]+2, uint8(c.R[6]), true, false)
+	c.R[3] = c.R[9]
+	c.R[0] = uint32(c.Memory.Read8(c.R[3]+0, true, false))
+	c.R[3] = c.Memory.Read32(c.R[13]+20, true, false)
+	c.Memory.Set32(c.R[13]+16, c.R[3], true, false)
+	c.R[3] = c.R[11]
+	c.R[2] = 8
+	c.SetNZ(int32(8) < 0, 8 == 0)
+	c.R[1] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.Memory.Set32(c.R[13]+8, c.R[3], true, false)
+	c.Memory.Set32(c.R[13]+12, c.R[5], true, false)
+	c.R[3] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.Memory.Set32(c.R[13]+4, c.R[5], true, false)
+	c.Memory.Set32(c.R[13]+0, c.R[5], true, false)
 	c.R[14] = 0x0819DAC7
 	c.NCallT(0x081317C4)
 	if c.U != 0 {
@@ -1100,8 +1452,8 @@ L_0819DA98:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x9B06)
-	c.Thumb(0x7818)
+	c.R[3] = c.Memory.Read32(c.R[13]+24, true, false)
+	c.R[0] = uint32(c.Memory.Read8(c.R[3]+0, true, false))
 	c.R[14] = 0x0819DACF
 	c.NCallT(0x0819EB64)
 	if c.U != 0 {
@@ -1110,30 +1462,49 @@ L_0819DA98:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x4643)
-	c.Thumb(0x3301)
-	c.Thumb(0x061B)
-	c.Thumb(0x0E1B)
-	c.Thumb(0x4698)
-	c.Thumb(0x4653)
-	c.Thumb(0x681B)
-	c.Thumb(0x2B00)
+	c.R[3] = c.R[8]
+	{
+		val := g.ADD(c.R[3], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[3], 1, val))
+		c.R[3] = uint32(val)
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[3], 24)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSR(c.R[3], 24)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[8] = c.R[3]
+	c.R[3] = c.R[10]
+	c.R[3] = c.Memory.Read32(c.R[3]+0, true, false)
+	{
+		val := g.SUB(c.R[3], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 0, val))
+	}
 	if c.Cond(0x1) {
 		goto L_0819DB28
 	}
 L_0819DAE0:
 	c.NT(10)
-	c.Thumb(0x4643)
-	c.Thumb(0x464C)
-	c.Thumb(0x46D9)
-	c.Thumb(0x2B03)
+	c.R[3] = c.R[8]
+	c.R[4] = c.R[9]
+	c.R[9] = c.R[11]
+	{
+		val := g.SUB(c.R[3], 3, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 3, val))
+	}
 	if c.Cond(0x0) {
 		goto L_0819DB68
 	}
 L_0819DAEA:
 	c.NT(30)
-	c.Thumb(0x7820)
-	c.Thumb(0x2111)
+	c.R[0] = uint32(c.Memory.Read8(c.R[4]+0, true, false))
+	c.R[1] = 17
+	c.SetNZ(int32(17) < 0, 17 == 0)
 	c.R[14] = 0x0819DAF3
 	c.NCallT(0x081DFFD4)
 	if c.U != 0 {
@@ -1142,35 +1513,49 @@ L_0819DAEA:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819DAF6
-	c.Thumb(0x4B33)
-	c.Thumb(0x681B)
-	c.Thumb(0x7820)
-	c.Thumb(0x2B00)
+	c.R[3] = c.Memory.Read32(0x0819DBC0, true, false)
+	c.R[3] = c.Memory.Read32(c.R[3]+0, true, false)
+	c.R[0] = uint32(c.Memory.Read8(c.R[4]+0, true, false))
+	{
+		val := g.SUB(c.R[3], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 0, val))
+	}
 	if c.Cond(0x0) {
 		goto L_0819DB82
 	}
-	c.Thumb(0x23F0)
-	c.Thumb(0x464A)
-	c.Thumb(0x011B)
-	c.Thumb(0x8013)
-	c.Thumb(0x2303)
-	c.Thumb(0x7093)
-	c.R[15] = 0x0819DB0C
-	c.Thumb(0x4B2E)
+	c.R[3] = 240
+	c.SetNZ(int32(240) < 0, 240 == 0)
+	c.R[2] = c.R[9]
+	{
+		v, cy := g.ShiftLSL(c.R[3], 4)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set16(c.R[2]+0, uint16(c.R[3]), true, false)
+	c.R[3] = 3
+	c.SetNZ(int32(3) < 0, 3 == 0)
+	c.Memory.Set8(c.R[2]+2, uint8(c.R[3]), true, false)
+	c.R[3] = c.Memory.Read32(0x0819DBC4, true, false)
 L_0819DB0A:
 	c.NT(6)
-	c.Thumb(0x9304)
-	c.Thumb(0x2300)
-	c.Thumb(0x9303)
+	c.Memory.Set32(c.R[13]+16, c.R[3], true, false)
+	c.R[3] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.Memory.Set32(c.R[13]+12, c.R[3], true, false)
 L_0819DB10:
 	c.NT(20)
-	c.Thumb(0x9202)
-	c.Thumb(0x9301)
-	c.Thumb(0x9300)
-	c.Thumb(0x2208)
-	c.Thumb(0x2101)
-	c.Thumb(0x3301)
+	c.Memory.Set32(c.R[13]+8, c.R[2], true, false)
+	c.Memory.Set32(c.R[13]+4, c.R[3], true, false)
+	c.Memory.Set32(c.R[13]+0, c.R[3], true, false)
+	c.R[2] = 8
+	c.SetNZ(int32(8) < 0, 8 == 0)
+	c.R[1] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	{
+		val := g.ADD(c.R[3], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[3], 1, val))
+		c.R[3] = uint32(val)
+	}
 	c.R[14] = 0x0819DB21
 	c.NCallT(0x081317C4)
 	if c.U != 0 {
@@ -1179,8 +1564,7 @@ L_0819DB10:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819DB24
-	c.Thumb(0x4829)
+	c.R[0] = c.Memory.Read32(0x0819DBC8, true, false)
 	c.R[14] = 0x0819DB27
 	c.NCallT(0x080005B8)
 	if c.U != 0 {
@@ -1192,9 +1576,10 @@ L_0819DB10:
 	goto L_0819DA86
 L_0819DB28:
 	c.NT(56)
-	c.Thumb(0x464B)
-	c.Thumb(0x2111)
-	c.Thumb(0x7818)
+	c.R[3] = c.R[9]
+	c.R[1] = 17
+	c.SetNZ(int32(17) < 0, 17 == 0)
+	c.R[0] = uint32(c.Memory.Read8(c.R[3]+0, true, false))
 	c.R[14] = 0x0819DB33
 	c.NCallT(0x081DFFD4)
 	if c.U != 0 {
@@ -1203,21 +1588,24 @@ L_0819DB28:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x465B)
-	c.Thumb(0x801F)
-	c.Thumb(0x709E)
-	c.Thumb(0x464B)
-	c.Thumb(0x7818)
-	c.Thumb(0x9B07)
-	c.Thumb(0x9304)
-	c.Thumb(0x465B)
-	c.Thumb(0x9503)
-	c.Thumb(0x9302)
-	c.Thumb(0x9501)
-	c.Thumb(0x2301)
-	c.Thumb(0x9500)
-	c.Thumb(0x2208)
-	c.Thumb(0x2101)
+	c.R[3] = c.R[11]
+	c.Memory.Set16(c.R[3]+0, uint16(c.R[7]), true, false)
+	c.Memory.Set8(c.R[3]+2, uint8(c.R[6]), true, false)
+	c.R[3] = c.R[9]
+	c.R[0] = uint32(c.Memory.Read8(c.R[3]+0, true, false))
+	c.R[3] = c.Memory.Read32(c.R[13]+28, true, false)
+	c.Memory.Set32(c.R[13]+16, c.R[3], true, false)
+	c.R[3] = c.R[11]
+	c.Memory.Set32(c.R[13]+12, c.R[5], true, false)
+	c.Memory.Set32(c.R[13]+8, c.R[3], true, false)
+	c.Memory.Set32(c.R[13]+4, c.R[5], true, false)
+	c.R[3] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.Memory.Set32(c.R[13]+0, c.R[5], true, false)
+	c.R[2] = 8
+	c.SetNZ(int32(8) < 0, 8 == 0)
+	c.R[1] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
 	c.R[14] = 0x0819DB55
 	c.NCallT(0x081317C4)
 	if c.U != 0 {
@@ -1226,26 +1614,33 @@ L_0819DB28:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x4653)
-	c.Thumb(0x681D)
-	c.Thumb(0x2D00)
+	c.R[3] = c.R[10]
+	c.R[5] = c.Memory.Read32(c.R[3]+0, true, false)
+	{
+		val := g.SUB(c.R[5], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[5], 0, val))
+	}
 	if c.Cond(0x0) {
 		goto L_0819DAE0
 	}
-	c.Thumb(0x4643)
-	c.Thumb(0x2B03)
+	c.R[3] = c.R[8]
+	{
+		val := g.SUB(c.R[3], 3, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 3, val))
+	}
 	if c.Cond(0x0) {
 		goto L_0819DB64
 	}
 	goto L_0819DA24
 L_0819DB64:
 	c.NT(4)
-	c.Thumb(0x464C)
-	c.Thumb(0x46D9)
+	c.R[4] = c.R[9]
+	c.R[9] = c.R[11]
 L_0819DB68:
 	c.NT(24)
-	c.Thumb(0x7820)
-	c.Thumb(0x2111)
+	c.R[0] = uint32(c.Memory.Read8(c.R[4]+0, true, false))
+	c.R[1] = 17
+	c.SetNZ(int32(17) < 0, 17 == 0)
 	c.R[14] = 0x0819DB71
 	c.NCallT(0x081DFFD4)
 	if c.U != 0 {
@@ -1254,36 +1649,45 @@ L_0819DB68:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x23F0)
-	c.Thumb(0x464A)
-	c.Thumb(0x011B)
-	c.Thumb(0x8013)
-	c.Thumb(0x2303)
-	c.Thumb(0x7820)
-	c.Thumb(0x7093)
-	c.R[15] = 0x0819DB82
-	c.Thumb(0x4B0E)
+	c.R[3] = 240
+	c.SetNZ(int32(240) < 0, 240 == 0)
+	c.R[2] = c.R[9]
+	{
+		v, cy := g.ShiftLSL(c.R[3], 4)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set16(c.R[2]+0, uint16(c.R[3]), true, false)
+	c.R[3] = 3
+	c.SetNZ(int32(3) < 0, 3 == 0)
+	c.R[0] = uint32(c.Memory.Read8(c.R[4]+0, true, false))
+	c.Memory.Set8(c.R[2]+2, uint8(c.R[3]), true, false)
+	c.R[3] = c.Memory.Read32(0x0819DBB8, true, false)
 	goto L_0819DB0A
 L_0819DB82:
 	c.NT(22)
-	c.Thumb(0x22F0)
-	c.Thumb(0x4649)
-	c.Thumb(0x0112)
-	c.Thumb(0x800A)
-	c.Thumb(0x2203)
-	c.Thumb(0x708A)
-	c.R[15] = 0x0819DB92
-	c.Thumb(0x4A0F)
-	c.Thumb(0x9303)
-	c.Thumb(0x9204)
-	c.Thumb(0x464A)
+	c.R[2] = 240
+	c.SetNZ(int32(240) < 0, 240 == 0)
+	c.R[1] = c.R[9]
+	{
+		v, cy := g.ShiftLSL(c.R[2], 4)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set16(c.R[1]+0, uint16(c.R[2]), true, false)
+	c.R[2] = 3
+	c.SetNZ(int32(3) < 0, 3 == 0)
+	c.Memory.Set8(c.R[1]+2, uint8(c.R[2]), true, false)
+	c.R[2] = c.Memory.Read32(0x0819DBCC, true, false)
+	c.Memory.Set32(c.R[13]+12, c.R[3], true, false)
+	c.Memory.Set32(c.R[13]+16, c.R[2], true, false)
+	c.R[2] = c.R[9]
 	goto L_0819DB10
 L_0819DB98:
 	c.NT(8)
-	c.Thumb(0xAB08)
-	c.Thumb(0x4699)
-	c.R[15] = 0x0819DBA0
-	c.Thumb(0x4C02)
+	c.R[3] = c.R[13] + 32
+	c.R[9] = c.R[3]
+	c.R[4] = c.Memory.Read32(0x0819DBA8, true, false)
 	goto L_0819DAEA
 }
 
@@ -1292,24 +1696,42 @@ func CB2_GameplayCannotBeContinued(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(18)
-	c.Thumb(0xB530)
-	c.Thumb(0x2400)
-	c.R[15] = 0x0819DBD8
-	c.Thumb(0x4B14)
-	c.Thumb(0xB086)
-	c.Thumb(0x801C)
-	c.R[15] = 0x0819DBDE
-	c.Thumb(0x4B14)
-	c.Thumb(0x8DDB)
-	c.Thumb(0x07DB)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[5], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	c.R[4] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[3] = c.Memory.Read32(0x0819DC28, true, false)
+	c.R[13] -= 24
+	c.Memory.Set16(c.R[3]+0, uint16(c.R[4]), true, false)
+	c.R[3] = c.Memory.Read32(0x0819DC2C, true, false)
+	c.R[3] = c.LoadHalf(c.R[3] + 46)
+	{
+		v, cy := g.ShiftLSL(c.R[3], 31)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
 	if c.Cond(0x4) {
 		goto L_0819DBEA
 	}
 L_0819DBE2:
 	c.NT(8)
-	c.Thumb(0xB006)
-	c.Thumb(0xBC30)
-	c.Thumb(0xBC01)
+	c.R[13] += 24
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[5] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -1336,10 +1758,10 @@ L_0819DBE2:
 	}
 L_0819DBEA:
 	c.NT(52)
-	c.R[15] = 0x0819DBEE
-	c.Thumb(0x4D11)
-	c.Thumb(0x2111)
-	c.Thumb(0x7828)
+	c.R[5] = c.Memory.Read32(0x0819DC30, true, false)
+	c.R[1] = 17
+	c.SetNZ(int32(17) < 0, 17 == 0)
+	c.R[0] = uint32(c.Memory.Read8(c.R[5]+0, true, false))
 	c.R[14] = 0x0819DBF5
 	c.NCallT(0x081DFFD4)
 	if c.U != 0 {
@@ -1348,23 +1770,31 @@ L_0819DBEA:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x22F0)
-	c.Thumb(0xAB05)
-	c.Thumb(0x0112)
-	c.Thumb(0x801A)
-	c.Thumb(0x2203)
-	c.Thumb(0x709A)
-	c.R[15] = 0x0819DC04
-	c.Thumb(0x4A0C)
-	c.Thumb(0x7828)
-	c.Thumb(0x2101)
-	c.Thumb(0x9204)
-	c.Thumb(0x9302)
-	c.Thumb(0x2208)
-	c.Thumb(0x2301)
-	c.Thumb(0x9403)
-	c.Thumb(0x9401)
-	c.Thumb(0x9400)
+	c.R[2] = 240
+	c.SetNZ(int32(240) < 0, 240 == 0)
+	c.R[3] = c.R[13] + 20
+	{
+		v, cy := g.ShiftLSL(c.R[2], 4)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.Memory.Set16(c.R[3]+0, uint16(c.R[2]), true, false)
+	c.R[2] = 3
+	c.SetNZ(int32(3) < 0, 3 == 0)
+	c.Memory.Set8(c.R[3]+2, uint8(c.R[2]), true, false)
+	c.R[2] = c.Memory.Read32(0x0819DC34, true, false)
+	c.R[0] = uint32(c.Memory.Read8(c.R[5]+0, true, false))
+	c.R[1] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.Memory.Set32(c.R[13]+16, c.R[2], true, false)
+	c.Memory.Set32(c.R[13]+8, c.R[3], true, false)
+	c.R[2] = 8
+	c.SetNZ(int32(8) < 0, 8 == 0)
+	c.R[3] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.Memory.Set32(c.R[13]+12, c.R[4], true, false)
+	c.Memory.Set32(c.R[13]+4, c.R[4], true, false)
+	c.Memory.Set32(c.R[13]+0, c.R[4], true, false)
 	c.R[14] = 0x0819DC19
 	c.NCallT(0x081317C4)
 	if c.U != 0 {
@@ -1373,8 +1803,7 @@ L_0819DBEA:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819DC1C
-	c.Thumb(0x4807)
+	c.R[0] = c.Memory.Read32(0x0819DC38, true, false)
 	c.R[14] = 0x0819DC1F
 	c.NCallT(0x08000760)
 	if c.U != 0 {
@@ -1383,8 +1812,7 @@ L_0819DBEA:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819DC22
-	c.Thumb(0x4807)
+	c.R[0] = c.Memory.Read32(0x0819DC3C, true, false)
 	c.R[14] = 0x0819DC25
 	c.NCallT(0x080005B8)
 	if c.U != 0 {
@@ -1401,23 +1829,32 @@ func CB2_FadeAndReturnToTitleScreen(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(18)
-	c.Thumb(0x2200)
-	c.Thumb(0xB500)
-	c.R[15] = 0x0819DC48
-	c.Thumb(0x4B0B)
-	c.Thumb(0xB081)
-	c.Thumb(0x801A)
-	c.R[15] = 0x0819DC4E
-	c.Thumb(0x4B0B)
-	c.Thumb(0x8DDB)
-	c.Thumb(0x07DB)
+	c.R[2] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[3] = c.Memory.Read32(0x0819DC74, true, false)
+	c.R[13] -= 4
+	c.Memory.Set16(c.R[3]+0, uint16(c.R[2]), true, false)
+	c.R[3] = c.Memory.Read32(0x0819DC78, true, false)
+	c.R[3] = c.LoadHalf(c.R[3] + 46)
+	{
+		v, cy := g.ShiftLSL(c.R[3], 31)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
 	if c.Cond(0x4) {
 		goto L_0819DC58
 	}
 L_0819DC52:
 	c.NT(6)
-	c.Thumb(0xB001)
-	c.Thumb(0xBC01)
+	c.R[13] += 4
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -1444,11 +1881,19 @@ L_0819DC52:
 	}
 L_0819DC58:
 	c.NT(22)
-	c.Thumb(0x2001)
-	c.Thumb(0x2310)
-	c.Thumb(0x2100)
-	c.Thumb(0x9200)
-	c.Thumb(0x4240)
+	c.R[0] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.R[3] = 16
+	c.SetNZ(int32(16) < 0, 16 == 0)
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.Memory.Set32(c.R[13]+0, c.R[2], true, false)
+	{
+		val := g.SUB(0, c.R[0], 0)
+		v := uint32(val)
+		c.R[0] = v
+		c.SetNZCV(g.FlagArithSub(0, c.R[0], val))
+	}
 	c.R[14] = 0x0819DC67
 	c.NCallT(0x08142E80)
 	if c.U != 0 {
@@ -1457,8 +1902,7 @@ L_0819DC58:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819DC6A
-	c.Thumb(0x4805)
+	c.R[0] = c.Memory.Read32(0x0819DC7C, true, false)
 	c.R[14] = 0x0819DC6D
 	c.NCallT(0x08000760)
 	if c.U != 0 {
@@ -1467,8 +1911,7 @@ L_0819DC58:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0819DC70
-	c.Thumb(0x4804)
+	c.R[0] = c.Memory.Read32(0x0819DC80, true, false)
 	c.R[14] = 0x0819DC73
 	c.NCallT(0x080005B8)
 	if c.U != 0 {
@@ -1485,7 +1928,14 @@ func CB2_ReturnToTitleScreen(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(20)
-	c.Thumb(0xB530)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[5], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
 	c.R[14] = 0x0819DC8B
 	c.NCallT(0x08142D38)
 	if c.U != 0 {
@@ -1494,14 +1944,21 @@ func CB2_ReturnToTitleScreen(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x1E04)
+	{
+		op1, op2 := c.R[0], uint32(0)
+		val := g.SUB(op1, op2, 0)
+		c.R[4] = uint32(val)
+		c.SetNZCV(g.FlagArithSub(op1, op2, val))
+	}
 	if c.Cond(0x1) {
 		goto L_0819DC9C
 	}
-	c.R[15] = 0x0819DC92
-	c.Thumb(0x4D06)
-	c.Thumb(0x6828)
-	c.Thumb(0x2800)
+	c.R[5] = c.Memory.Read32(0x0819DCA8, true, false)
+	c.R[0] = c.Memory.Read32(c.R[5]+0, true, false)
+	{
+		val := g.SUB(c.R[0], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[0], 0, val))
+	}
 	if c.Cond(0x0) {
 		goto L_0819DCA2
 	}
@@ -1513,11 +1970,19 @@ func CB2_ReturnToTitleScreen(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x602C)
+	c.Memory.Set32(c.R[5]+0, c.R[4], true, false)
 L_0819DC9C:
 	c.NT(6)
-	c.Thumb(0xBC30)
-	c.Thumb(0xBC01)
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[5] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -1560,60 +2025,146 @@ func VBlankCB_UpdateClockGraphics(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(74)
-	c.R[15] = 0x0819DCB0
-	c.Thumb(0x481B)
-	c.R[15] = 0x0819DCB2
-	c.Thumb(0x4B1C)
-	c.Thumb(0xB530)
-	c.Thumb(0x6383)
-	c.Thumb(0x2300)
-	c.R[15] = 0x0819DCBA
-	c.Thumb(0x4C1B)
-	c.Thumb(0x63C3)
-	c.Thumb(0x8823)
-	c.Thumb(0x2101)
-	c.Thumb(0x6A42)
-	c.Thumb(0x2B00)
+	c.R[0] = c.Memory.Read32(0x0819DD1C, true, false)
+	c.R[3] = c.Memory.Read32(0x0819DD20, true, false)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[5], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	c.Memory.Set32(c.R[0]+56, c.R[3], true, false)
+	c.R[3] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[4] = c.Memory.Read32(0x0819DD24, true, false)
+	c.Memory.Set32(c.R[0]+60, c.R[3], true, false)
+	c.R[3] = c.LoadHalf(c.R[4] + 0)
+	c.R[1] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	c.R[2] = c.Memory.Read32(c.R[0]+36, true, false)
+	{
+		val := g.SUB(c.R[3], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 0, val))
+	}
 	if c.Cond(0x0) {
 		goto L_0819DCF6
 	}
-	c.Thumb(0x0692)
-	c.Thumb(0x0F52)
-	c.R[15] = 0x0819DCCC
-	c.Thumb(0x4B17)
-	c.Thumb(0x0051)
-	c.Thumb(0x188A)
-	c.Thumb(0x5C99)
-	c.Thumb(0x189B)
-	c.Thumb(0x789A)
-	c.Thumb(0x785B)
-	c.Thumb(0x0112)
-	c.Thumb(0x00DB)
-	c.Thumb(0x4313)
-	c.Thumb(0x2238)
-	c.Thumb(0x4694)
-	c.Thumb(0x3A19)
-	c.Thumb(0x4484)
-	c.Thumb(0x401A)
-	c.Thumb(0x4663)
-	c.Thumb(0x253E)
-	c.Thumb(0x78DB)
-	c.Thumb(0x0052)
-	c.Thumb(0x43AB)
-	c.Thumb(0x4313)
-	c.Thumb(0x4662)
-	c.Thumb(0x70D3)
+	{
+		v, cy := g.ShiftLSL(c.R[2], 26)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSR(c.R[2], 29)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[3] = c.Memory.Read32(0x0819DD28, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[2], 1)
+		c.R[1] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		op1, op2 := c.R[1], uint32(c.R[2])
+		val := g.ADD(op1, op2, 0)
+		c.R[2] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
+	c.R[1] = uint32(c.Memory.Read8(c.R[3]+c.R[2], true, false))
+	{
+		op1, op2 := c.R[3], uint32(c.R[2])
+		val := g.ADD(op1, op2, 0)
+		c.R[3] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
+	c.R[2] = uint32(c.Memory.Read8(c.R[3]+2, true, false))
+	c.R[3] = uint32(c.Memory.Read8(c.R[3]+1, true, false))
+	{
+		v, cy := g.ShiftLSL(c.R[2], 4)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[3], 3)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v := uint32(c.R[3] | c.R[2])
+		c.R[3] = v
+		c.SetNZ(int32(v) < 0, v == 0)
+	}
+	c.R[2] = 56
+	c.SetNZ(int32(56) < 0, 56 == 0)
+	c.R[12] = c.R[2]
+	{
+		val := g.SUB(c.R[2], 25, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[2], 25, val))
+		c.R[2] = uint32(val)
+	}
+	c.R[12] += c.R[0]
+	{
+		v := uint32(c.R[2] & c.R[3])
+		c.R[2] = v
+		c.SetNZ(int32(v) < 0, v == 0)
+	}
+	c.R[3] = c.R[12]
+	c.R[5] = 62
+	c.SetNZ(int32(62) < 0, 62 == 0)
+	c.R[3] = uint32(c.Memory.Read8(c.R[3]+3, true, false))
+	{
+		v, cy := g.ShiftLSL(c.R[2], 1)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v := uint32(c.R[3] &^ c.R[5])
+		c.R[3] = v
+		c.SetNZ(int32(v) < 0, v == 0)
+	}
+	{
+		v := uint32(c.R[3] | c.R[2])
+		c.R[3] = v
+		c.SetNZ(int32(v) < 0, v == 0)
+	}
+	c.R[2] = c.R[12]
+	c.Memory.Set8(c.R[2]+3, uint8(c.R[3]), true, false)
 L_0819DCF6:
 	c.NT(30)
-	c.Thumb(0x8F83)
-	c.Thumb(0x0A9B)
-	c.Thumb(0x029B)
-	c.Thumb(0x430B)
-	c.Thumb(0x21E0)
-	c.Thumb(0x8783)
-	c.Thumb(0x2201)
-	c.Thumb(0x3038)
-	c.Thumb(0x04C9)
+	c.R[3] = c.LoadHalf(c.R[0] + 60)
+	{
+		v, cy := g.ShiftLSR(c.R[3], 10)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[3], 10)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v := uint32(c.R[3] | c.R[1])
+		c.R[3] = v
+		c.SetNZ(int32(v) < 0, v == 0)
+	}
+	c.R[1] = 224
+	c.SetNZ(int32(224) < 0, 224 == 0)
+	c.Memory.Set16(c.R[0]+60, uint16(c.R[3]), true, false)
+	c.R[2] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
+	{
+		val := g.ADD(c.R[0], 56, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[0], 56, val))
+		c.R[0] = uint32(val)
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[1], 19)
+		c.R[1] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
 	c.R[14] = 0x0819DD0D
 	c.NCallT(0x082E484C)
 	if c.U != 0 {
@@ -1622,17 +2173,32 @@ L_0819DCF6:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x8863)
-	c.Thumb(0x2B00)
+	c.R[3] = c.LoadHalf(c.R[4] + 2)
+	{
+		val := g.SUB(c.R[3], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 0, val))
+	}
 	if c.Cond(0x0) {
 		goto L_0819DD16
 	}
-	c.Thumb(0x3B01)
-	c.Thumb(0x8063)
+	{
+		val := g.SUB(c.R[3], 1, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 1, val))
+		c.R[3] = uint32(val)
+	}
+	c.Memory.Set16(c.R[4]+2, uint16(c.R[3]), true, false)
 L_0819DD16:
 	c.NT(6)
-	c.Thumb(0xBC30)
-	c.Thumb(0xBC01)
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[5] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -1664,15 +2230,34 @@ func VerifySectorWipe(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(26)
-	c.Thumb(0x2380)
-	c.R[15] = 0x0819DD32
-	c.Thumb(0x4A0C)
-	c.Thumb(0x0400)
-	c.Thumb(0x2100)
-	c.Thumb(0xB510)
-	c.Thumb(0x015B)
-	c.Thumb(0x0C00)
-	c.Thumb(0x0014)
+	c.R[3] = 128
+	c.SetNZ(int32(128) < 0, 128 == 0)
+	c.R[2] = c.Memory.Read32(0x0819DD60, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[0], 16)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[3], 5)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSR(c.R[0], 16)
+		c.R[0] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[4] = c.R[2]
+	c.SetNZ(int32(c.R[4]) < 0, c.R[4] == 0)
 	c.R[14] = 0x0819DD41
 	c.NCallT(0x0800397C)
 	if c.U != 0 {
@@ -1681,29 +2266,56 @@ func VerifySectorWipe(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2380)
-	c.Thumb(0x015B)
-	c.Thumb(0x18E1)
+	c.R[3] = 128
+	c.SetNZ(int32(128) < 0, 128 == 0)
+	{
+		v, cy := g.ShiftLSL(c.R[3], 5)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		op1, op2 := c.R[4], uint32(c.R[3])
+		val := g.ADD(op1, op2, 0)
+		c.R[1] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
 	goto L_0819DD4E
 L_0819DD48:
 	c.NT(6)
-	c.Thumb(0x3404)
-	c.Thumb(0x428C)
+	{
+		val := g.ADD(c.R[4], 4, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[4], 4, val))
+		c.R[4] = uint32(val)
+	}
+	{
+		val := g.SUB(c.R[4], c.R[1], 0)
+		c.SetNZCV(g.FlagArithSub(c.R[4], c.R[1], val))
+	}
 	if c.Cond(0x0) {
 		goto L_0819DD5C
 	}
 L_0819DD4E:
 	c.NT(8)
-	c.Thumb(0x6823)
-	c.Thumb(0x2B00)
+	c.R[3] = c.Memory.Read32(c.R[4]+0, true, false)
+	{
+		val := g.SUB(c.R[3], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 0, val))
+	}
 	if c.Cond(0x0) {
 		goto L_0819DD48
 	}
-	c.Thumb(0x2001)
+	c.R[0] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
 L_0819DD56:
 	c.NT(6)
-	c.Thumb(0xBC10)
-	c.Thumb(0xBC02)
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[1] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[1]
 		if t&^1 == lr&^1 {
@@ -1730,7 +2342,8 @@ L_0819DD56:
 	}
 L_0819DD5C:
 	c.NT(4)
-	c.Thumb(0x2000)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 	goto L_0819DD56
 }
 
@@ -1739,35 +2352,74 @@ func WipeSector(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(34)
-	c.Thumb(0xB5F0)
-	c.Thumb(0x464F)
-	c.Thumb(0x4646)
-	c.Thumb(0x46D6)
-	c.Thumb(0x2382)
-	c.Thumb(0xB5C0)
-	c.Thumb(0x2680)
-	c.Thumb(0x469A)
-	c.R[15] = 0x0819DD78
-	c.Thumb(0x4B18)
-	c.Thumb(0x0176)
-	c.Thumb(0x4699)
-	c.Thumb(0x0033)
-	c.Thumb(0x444B)
-	c.Thumb(0x4698)
-	c.Thumb(0x0405)
-	c.R[15] = 0x0819DD86
-	c.Thumb(0x4F16)
-	c.Thumb(0x0C2D)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[7], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[6], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[5], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	c.R[7] = c.R[9]
+	c.R[6] = c.R[8]
+	c.R[14] = c.R[10]
+	c.R[3] = 130
+	c.SetNZ(int32(130) < 0, 130 == 0)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[7], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[6], true, false)
+	}
+	c.R[6] = 128
+	c.SetNZ(int32(128) < 0, 128 == 0)
+	c.R[10] = c.R[3]
+	c.R[3] = c.Memory.Read32(0x0819DDD8, true, false)
+	{
+		v, cy := g.ShiftLSL(c.R[6], 5)
+		c.R[6] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[9] = c.R[3]
+	c.R[3] = c.R[6]
+	c.SetNZ(int32(c.R[3]) < 0, c.R[3] == 0)
+	c.R[3] += c.R[9]
+	c.R[8] = c.R[3]
+	{
+		v, cy := g.ShiftLSL(c.R[0], 16)
+		c.R[5] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[7] = c.Memory.Read32(0x0819DDDC, true, false)
+	{
+		v, cy := g.ShiftLSR(c.R[5], 16)
+		c.R[5] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
 L_0819DD86:
 	c.NT(2)
-	c.Thumb(0x2400)
+	c.R[4] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 L_0819DD88:
 	c.NT(30)
-	c.Thumb(0x0021)
-	c.Thumb(0x2200)
-	c.Thumb(0x0028)
-	c.Thumb(0x683B)
-	c.Thumb(0x3401)
+	c.R[1] = c.R[4]
+	c.SetNZ(int32(c.R[1]) < 0, c.R[1] == 0)
+	c.R[2] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = c.R[5]
+	c.SetNZ(int32(c.R[0]) < 0, c.R[0] == 0)
+	c.R[3] = c.Memory.Read32(c.R[7]+0, true, false)
+	{
+		val := g.ADD(c.R[4], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[4], 1, val))
+		c.R[4] = uint32(val)
+	}
 	c.R[14] = 0x0819DD97
 	stub_0819DE16(c)
 	if c.U != 0 {
@@ -1776,14 +2428,20 @@ L_0819DD88:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x42B4)
+	{
+		val := g.SUB(c.R[4], c.R[6], 0)
+		c.SetNZCV(g.FlagArithSub(c.R[4], c.R[6], val))
+	}
 	if c.Cond(0x1) {
 		goto L_0819DD88
 	}
-	c.Thumb(0x0033)
-	c.Thumb(0x464A)
-	c.Thumb(0x2100)
-	c.Thumb(0x0028)
+	c.R[3] = c.R[6]
+	c.SetNZ(int32(c.R[3]) < 0, c.R[3] == 0)
+	c.R[2] = c.R[9]
+	c.R[1] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[0] = c.R[5]
+	c.SetNZ(int32(c.R[0]) < 0, c.R[0] == 0)
 	c.R[14] = 0x0819DDA7
 	c.NCallT(0x0800397C)
 	if c.U != 0 {
@@ -1792,44 +2450,90 @@ L_0819DD88:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x464B)
+	c.R[3] = c.R[9]
 	goto L_0819DDB0
 L_0819DDAA:
 	c.NT(6)
-	c.Thumb(0x3304)
-	c.Thumb(0x4543)
+	{
+		val := g.ADD(c.R[3], 4, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[3], 4, val))
+		c.R[3] = uint32(val)
+	}
+	{
+		val := g.SUB(c.R[3], c.R[8], 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], c.R[8], val))
+	}
 	if c.Cond(0x0) {
 		goto L_0819DDC8
 	}
 L_0819DDB0:
 	c.NT(24)
-	c.Thumb(0x681A)
-	c.Thumb(0x2A00)
+	c.R[2] = c.Memory.Read32(c.R[3]+0, true, false)
+	{
+		val := g.SUB(c.R[2], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[2], 0, val))
+	}
 	if c.Cond(0x0) {
 		goto L_0819DDAA
 	}
-	c.Thumb(0x4653)
-	c.Thumb(0x3B01)
-	c.Thumb(0x041B)
-	c.Thumb(0x0C1A)
-	c.Thumb(0x4692)
-	c.Thumb(0x2B00)
+	c.R[3] = c.R[10]
+	{
+		val := g.SUB(c.R[3], 1, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 1, val))
+		c.R[3] = uint32(val)
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[3], 16)
+		c.R[3] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		v, cy := g.ShiftLSR(c.R[3], 16)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[10] = c.R[2]
+	{
+		val := g.SUB(c.R[3], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[3], 0, val))
+	}
 	if c.Cond(0x1) {
 		goto L_0819DD86
 	}
-	c.Thumb(0x2001)
+	c.R[0] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
 	goto L_0819DDCA
 L_0819DDC8:
 	c.NT(2)
-	c.Thumb(0x2000)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 L_0819DDCA:
 	c.NT(14)
-	c.Thumb(0xBCE0)
-	c.Thumb(0x46BA)
-	c.Thumb(0x46B1)
-	c.Thumb(0x46A8)
-	c.Thumb(0xBCF0)
-	c.Thumb(0xBC02)
+	{
+		c.R[5] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[6] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[7] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	c.R[10] = c.R[7]
+	c.R[9] = c.R[6]
+	c.R[8] = c.R[5]
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[5] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[6] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[7] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[1] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[1]
 		if t&^1 == lr&^1 {
@@ -1861,27 +2565,62 @@ func WipeSectors(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(10)
-	c.Thumb(0xB5F0)
-	c.Thumb(0x0006)
-	c.Thumb(0x2400)
-	c.Thumb(0x2701)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[7], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[6], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[5], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	c.R[6] = c.R[0]
+	c.SetNZ(int32(c.R[6]) < 0, c.R[6] == 0)
+	c.R[4] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	c.R[7] = 1
+	c.SetNZ(int32(1) < 0, 1 == 0)
 	goto L_0819DDF0
 L_0819DDEA:
 	c.NT(6)
-	c.Thumb(0x3401)
-	c.Thumb(0x2C20)
+	{
+		val := g.ADD(c.R[4], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[4], 1, val))
+		c.R[4] = uint32(val)
+	}
+	{
+		val := g.SUB(c.R[4], 32, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[4], 32, val))
+	}
 	if c.Cond(0x0) {
 		goto L_0819DE0A
 	}
 L_0819DDF0:
 	c.NT(24)
-	c.Thumb(0x003D)
-	c.Thumb(0x40A5)
-	c.Thumb(0x422E)
+	c.R[5] = c.R[7]
+	c.SetNZ(int32(c.R[5]) < 0, c.R[5] == 0)
+	{
+		amount := c.R[4] & 0xFF
+		v, carry := g.ShiftLSL(c.R[5], amount)
+		c.R[5] = v
+		if amount > 0 {
+			c.SetNZC(int32(v) < 0, v == 0, carry)
+		} else {
+			c.SetNZ(int32(v) < 0, v == 0)
+		}
+	}
+	{
+		v := c.R[6] & c.R[5]
+		c.SetNZ(int32(v) < 0, v == 0)
+	}
 	if c.Cond(0x0) {
 		goto L_0819DDEA
 	}
-	c.Thumb(0x0020)
+	c.R[0] = c.R[4]
+	c.SetNZ(int32(c.R[0]) < 0, c.R[0] == 0)
 	c.R[14] = 0x0819DDFF
 	WipeSector(c)
 	if c.U != 0 {
@@ -1890,23 +2629,60 @@ L_0819DDF0:
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2800)
+	{
+		val := g.SUB(c.R[0], 0, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[0], 0, val))
+	}
 	if c.Cond(0x1) {
 		goto L_0819DDEA
 	}
-	c.Thumb(0x3401)
-	c.Thumb(0x43AE)
-	c.Thumb(0x2C20)
+	{
+		val := g.ADD(c.R[4], 1, 0)
+		c.SetNZCV(g.FlagArithAdd(c.R[4], 1, val))
+		c.R[4] = uint32(val)
+	}
+	{
+		v := uint32(c.R[6] &^ c.R[5])
+		c.R[6] = v
+		c.SetNZ(int32(v) < 0, v == 0)
+	}
+	{
+		val := g.SUB(c.R[4], 32, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[4], 32, val))
+	}
 	if c.Cond(0x1) {
 		goto L_0819DDF0
 	}
 L_0819DE0A:
 	c.NT(12)
-	c.Thumb(0x0030)
-	c.Thumb(0x1E43)
-	c.Thumb(0x4198)
-	c.Thumb(0xBCF0)
-	c.Thumb(0xBC02)
+	c.R[0] = c.R[6]
+	c.SetNZ(int32(c.R[0]) < 0, c.R[0] == 0)
+	{
+		op1, op2 := c.R[0], uint32(1)
+		val := g.SUB(op1, op2, 0)
+		c.R[3] = uint32(val)
+		c.SetNZCV(g.FlagArithSub(op1, op2, val))
+	}
+	{
+		val := g.SBCThumb(c.R[0], c.R[3], c.CFlag())
+		v := uint32(val)
+		c.R[0] = v
+		c.SetNZCV(g.FlagArithSub(c.R[0], c.R[3], val))
+	}
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[5] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[6] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+		c.R[7] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[1] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[1]
 		if t&^1 == lr&^1 {

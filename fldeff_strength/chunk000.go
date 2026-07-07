@@ -15,8 +15,14 @@ func SetUpFieldMove_Strength(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(14)
-	c.Thumb(0xB510)
-	c.Thumb(0x2057)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[4], true, false)
+	}
+	c.R[0] = 87
+	c.SetNZ(int32(87) < 0, 87 == 0)
 	c.R[14] = 0x081066D5
 	c.NCallT(0x08106108)
 	if c.U != 0 {
@@ -25,17 +31,29 @@ func SetUpFieldMove_Strength(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x0004)
-	c.Thumb(0x2801)
+	c.R[4] = c.R[0]
+	c.SetNZ(int32(c.R[4]) < 0, c.R[4] == 0)
+	{
+		val := g.SUB(c.R[0], 1, 0)
+		c.SetNZCV(g.FlagArithSub(c.R[0], 1, val))
+	}
 	if c.Cond(0x0) {
 		goto L_081066E4
 	}
-	c.Thumb(0x2400)
+	c.R[4] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
 L_081066DC:
 	c.NT(8)
-	c.Thumb(0x0020)
-	c.Thumb(0xBC10)
-	c.Thumb(0xBC02)
+	c.R[0] = c.R[4]
+	c.SetNZ(int32(c.R[0]) < 0, c.R[0] == 0)
+	{
+		c.R[4] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
+	{
+		c.R[1] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[1]
 		if t&^1 == lr&^1 {
@@ -70,19 +88,14 @@ L_081066E4:
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x081066EC
-	c.Thumb(0x4B04)
-	c.R[15] = 0x081066EE
-	c.Thumb(0x4A05)
-	c.Thumb(0x8018)
-	c.R[15] = 0x081066F2
-	c.Thumb(0x4B05)
-	c.Thumb(0x601A)
-	c.R[15] = 0x081066F6
-	c.Thumb(0x4B05)
-	c.R[15] = 0x081066F8
-	c.Thumb(0x4A05)
-	c.Thumb(0x601A)
+	c.R[3] = c.Memory.Read32(0x081066FC, true, false)
+	c.R[2] = c.Memory.Read32(0x08106700, true, false)
+	c.Memory.Set16(c.R[3]+0, uint16(c.R[0]), true, false)
+	c.R[3] = c.Memory.Read32(0x08106704, true, false)
+	c.Memory.Set32(c.R[3]+0, c.R[2], true, false)
+	c.R[3] = c.Memory.Read32(0x08106708, true, false)
+	c.R[2] = c.Memory.Read32(0x0810670C, true, false)
+	c.Memory.Set32(c.R[3]+0, c.R[2], true, false)
 	goto L_081066DC
 }
 
@@ -91,7 +104,10 @@ func FieldCallback_Strength(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(16)
-	c.Thumb(0xB500)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
 	c.R[14] = 0x08106717
 	c.NCallT(0x08145634)
 	if c.U != 0 {
@@ -100,11 +116,9 @@ func FieldCallback_Strength(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.R[15] = 0x0810671A
-	c.Thumb(0x4B03)
-	c.Thumb(0x6018)
-	c.R[15] = 0x0810671E
-	c.Thumb(0x4803)
+	c.R[3] = c.Memory.Read32(0x08106724, true, false)
+	c.Memory.Set32(c.R[3]+0, c.R[0], true, false)
+	c.R[0] = c.Memory.Read32(0x08106728, true, false)
 	c.R[14] = 0x08106721
 	c.NCallT(0x081A37BC)
 	if c.U != 0 {
@@ -113,7 +127,10 @@ func FieldCallback_Strength(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0xBC01)
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
@@ -145,7 +162,10 @@ func FldEff_UseStrength(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(44)
-	c.Thumb(0xB500)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
 	c.R[14] = 0x08106733
 	c.NCallT(0x08106154)
 	if c.U != 0 {
@@ -154,27 +174,55 @@ func FldEff_UseStrength(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x0082)
-	c.R[15] = 0x08106738
-	c.Thumb(0x4B09)
-	c.Thumb(0x1812)
-	c.Thumb(0x00D2)
-	c.Thumb(0x1898)
-	c.R[15] = 0x08106740
-	c.Thumb(0x4B08)
-	c.Thumb(0x8343)
-	c.Thumb(0x0C1A)
-	c.R[15] = 0x08106746
-	c.Thumb(0x4B08)
-	c.Thumb(0x8302)
-	c.Thumb(0x6818)
-	c.Thumb(0x2364)
-	c.Thumb(0x4358)
-	c.R[15] = 0x08106750
-	c.Thumb(0x4B06)
-	c.R[15] = 0x08106752
-	c.Thumb(0x4907)
-	c.Thumb(0x18C0)
+	{
+		v, cy := g.ShiftLSL(c.R[0], 2)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[3] = c.Memory.Read32(0x0810675C, true, false)
+	{
+		op1, op2 := c.R[2], uint32(c.R[0])
+		val := g.ADD(op1, op2, 0)
+		c.R[2] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
+	{
+		v, cy := g.ShiftLSL(c.R[2], 3)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	{
+		op1, op2 := c.R[3], uint32(c.R[2])
+		val := g.ADD(op1, op2, 0)
+		c.R[0] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
+	c.R[3] = c.Memory.Read32(0x08106760, true, false)
+	c.Memory.Set16(c.R[0]+26, uint16(c.R[3]), true, false)
+	{
+		v, cy := g.ShiftLSR(c.R[3], 16)
+		c.R[2] = v
+		c.SetNZC(int32(v) < 0, v == 0, cy)
+	}
+	c.R[3] = c.Memory.Read32(0x08106764, true, false)
+	c.Memory.Set16(c.R[0]+24, uint16(c.R[2]), true, false)
+	c.R[0] = c.Memory.Read32(c.R[3]+0, true, false)
+	c.R[3] = 100
+	c.SetNZ(int32(100) < 0, 100 == 0)
+	{
+		val := g.MUL(c.R[0], c.R[3], 0)
+		v := uint32(val)
+		c.R[0] = v
+		c.SetNZCV(g.FlagArithAdd(c.R[0], c.R[3], val))
+	}
+	c.R[3] = c.Memory.Read32(0x08106768, true, false)
+	c.R[1] = c.Memory.Read32(0x0810676C, true, false)
+	{
+		op1, op2 := c.R[0], uint32(c.R[3])
+		val := g.ADD(op1, op2, 0)
+		c.R[0] = uint32(val)
+		c.SetNZCV(g.FlagArithAdd(op1, op2, val))
+	}
 	c.R[14] = 0x08106757
 	c.NCallT(0x08145D4C)
 	if c.U != 0 {
@@ -183,8 +231,12 @@ func FldEff_UseStrength(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0x2000)
-	c.Thumb(0xBC02)
+	c.R[0] = 0
+	c.SetNZ(int32(0) < 0, 0 == 0)
+	{
+		c.R[1] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[1]
 		if t&^1 == lr&^1 {
@@ -216,8 +268,12 @@ func StartStrengthFieldEffect(c *g.CPU) {
 	lr := c.R[14]
 	_ = lr
 	c.NT(12)
-	c.Thumb(0xB500)
-	c.Thumb(0x2028)
+	{
+		c.R[13] -= 4
+		c.Memory.Set32(c.R[13], c.R[14], true, false)
+	}
+	c.R[0] = 40
+	c.SetNZ(int32(40) < 0, 40 == 0)
 	c.R[14] = 0x08106779
 	c.NCallT(0x080EF0FC)
 	if c.U != 0 {
@@ -234,7 +290,10 @@ func StartStrengthFieldEffect(c *g.CPU) {
 		}
 		c.U = 0
 	}
-	c.Thumb(0xBC01)
+	{
+		c.R[0] = c.Memory.Read32(c.R[13], true, false)
+		c.R[13] += 4
+	}
 	{
 		t := c.R[0]
 		if t&^1 == lr&^1 {
