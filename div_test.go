@@ -25,7 +25,7 @@ func TestNativeDivsi3(t *testing.T) {
 			c.R[1] = uint32(d)
 			c.R[14] = 0x08001199
 			c.CPSR = gba.SYS
-			f_082E4DB4(c)
+			c.NCallArm(0x082E4DB4)
 			if int32(c.R[0]) != n/d {
 				t.Errorf("%d/%d = %d, want %d", n, d, int32(c.R[0]), n/d)
 			}

@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 )
 
 func main() {
 	elfPath := flag.String("elf", "", "path to pokeemerald_modern.elf")
+	mapPath := flag.String("map", "", "path to pokeemerald_modern.map (default: derived from -elf)")
+	module := flag.String("module", "dbut.dev/emerald", "Go module path of the output")
 	outDir := flag.String("out", "", "output directory for generated Go (empty: analyze only)")
 	flag.Parse()
 
@@ -21,6 +24,20 @@ func main() {
 	fmt.Printf("entry %08X, %d functions\n", im.Entry, len(im.Funcs))
 
 	a := analyze(im)
+	a.Module = *module
+
+	mp := *mapPath
+	if mp == "" && *elfPath != "" {
+		mp = strings.TrimSuffix(*elfPath, ".elf") + ".map"
+	}
+	ranges, err := parseMap(mp)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "map %s: %v\n", mp, err)
+		os.Exit(1)
+	}
+	fmt.Printf("map: %d code object ranges\n", len(ranges))
+	buildGroups(a, ranges)
+	reportGroups(a)
 
 	keys := make([]string, 0, len(a.Stats))
 	for k := range a.Stats {

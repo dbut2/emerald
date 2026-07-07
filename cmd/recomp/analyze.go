@@ -79,6 +79,14 @@ type Analysis struct {
 	Stats    map[string]int
 	Samples  map[string][]string
 	Rejected map[uint32]bool
+	Names    map[uint32]string
+
+	Module   string
+	File     map[uint32]string
+	Pkg      map[uint32]string
+	PkgIdent map[string]string
+
+	curPkg string
 }
 
 func analyze(im *Image) *Analysis {
