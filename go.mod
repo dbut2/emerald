@@ -1,4 +1,4 @@
-module github.com/dbut2/emerald
+module dbut.dev/emerald
 
 go 1.26
 
