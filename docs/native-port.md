@@ -117,15 +117,23 @@ Build + run: `./port/build.sh && ./port/build/pe_native` (writes frame PPMs to
   HLE'd in `port/hle/dma.c` via a shadowed `DmaSetUnchecked`. (2) upstream
   `global.h` stubs `INCBIN` to `{0}` under `__APPLE__`, which silently zeroed
   every non-`INCGFX` asset (e.g. `gTitleScreenBgPalettes`); the shadow `global.h`
-  now un-stubs it so `preproc` emits the real bytes.
+  now un-stubs it so `preproc` emits the real bytes. The same `__APPLE__` block
+  stubs the charmap macros `_()`/`__()` to `{x}`, so `clang -E` expanded them
+  before `preproc` could charmap-encode the literal and every string compiled to
+  raw ASCII (all dialog text rendered as garbage glyphs); the shadow `global.h`
+  un-stubs those too.
 - **Phase 4 — audio: NOT STARTED.** m4a engine + song data are stubbed
   (silent). Needs a host MP2K mixer driven once/frame (see agbplay/ipatix), or
   a portable m4a.c reimplementation, plus converting `sound/songs/*.s` to C
   (the dataconv path already handles the format).
-- **Phase 5 — save: NOT STARTED.** Flash stubbed; `gFlashMemoryPresent` forced
-  absent. Needs a host Flash-1M (128 KB) HLE backing a `.sav`, field-wise
-  SaveBlock serialization (the neutered STATIC_ASSERT constraint moves here),
-  and round-trip vs mGBA/the oracle.
+- **Phase 5 — save: PARTIAL.** `port/hle/flash.c` provides a Flash-1M (128 KB)
+  HLE: a flat sector buffer, `IdentifyFlash`/`ReadFlash`/`ProgramFlashByte`/
+  `EraseFlashSector`/`ProgramFlashSectorAndVerify` implemented, so
+  `gFlashMemoryPresent` is now TRUE and the main menu reaches NEW GAME instead of
+  the `SAVE_STATUS_NO_FLASH` error dialog. Still MISSING: the buffer is
+  session-only (no `.sav` backing yet) and field-wise SaveBlock serialization
+  (the neutered STATIC_ASSERT constraint moves here), plus round-trip vs
+  mGBA/the oracle.
 
 ## Skipped / stubbed — for review
 - **Pointer-width shim NOT applied.** The ~130 `SetWordTaskArg`/`(u32)ptr`
@@ -135,8 +143,10 @@ Build + run: `./port/build.sh && ./port/build/pe_native` (writes frame PPMs to
   fatal case, but overworld/battle will.
 - **Stubbed subsystems** (`port/build.sh` removes their objects; genstubs
   no-ops the symbols): librfu/link_rfu (wireless — polled forever), siirtc/rtc
-  (GPIO at raw 0x080000C4, un-rebased), agb_flash* (self-modifying IWRAM
-  routine). RTC time is zero; save is absent; link is dead.
+  (GPIO at raw 0x080000C4, un-rebased). `agb_flash*` is also dropped, but its
+  API is now reimplemented in `port/hle/flash.c` rather than no-op'd. RTC time is
+  zero (so the main menu shows the "internal battery has run dry" notice once);
+  link is dead.
 - **`port_frame_end` re-arms the boot callback** because flash reads absent
   nulls callback2. With a real flash HLE (Phase 5) this hack goes away.
 - **Sound song data + m4a**: 547 data + 210 fn symbols stubbed to empty/no-op.

@@ -21,4 +21,12 @@
 #undef INCBIN_S16
 #undef INCBIN_S32
 
+// Same __APPLE__ trap for the charmap macros: _()/__() get stubbed to {x}, so
+// clang -E expands them before tools/preproc can charmap-encode the literal, and
+// every string ends up as raw ASCII bytes the in-game font can't map (dialog
+// text renders as garbage). Undo it so preproc sees _("...") and emits real
+// charmap bytes.
+#undef _
+#undef __
+
 #endif // GUARD_PORT_GLOBAL_H
