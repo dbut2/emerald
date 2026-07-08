@@ -5,6 +5,7 @@
 
 extern void gba_mem_init(void);
 extern void CB2_InitCopyrightScreenAfterBootup(void);
+extern void pe_install_crash_handler(void);
 
 #define HOST(a) ((a) + 0x3FE000000UL)
 
@@ -18,6 +19,7 @@ static int g_go, g_done, g_frames;
 static void *game_thread(void *a)
 {
     (void)a;
+    pe_install_crash_handler();
     AgbMain();
     return NULL;
 }
