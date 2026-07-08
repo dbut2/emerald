@@ -2,6 +2,8 @@
 
 Running **Pokémon Emerald** as native host machine code, driven from Go.
 
+![Pokémon Emerald's title screen, running as native code and rendered through Sapphire's PPU](docs/screenshot.png)
+
 This project compiles the [pret/pokeemerald](https://github.com/pret/pokeemerald)
 decompilation to native arm64 — not an emulator, the game's own C running
 directly — and drives it from Go over a per-frame cgo boundary, rendering
