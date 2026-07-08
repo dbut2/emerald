@@ -13,10 +13,16 @@ func main() {
 	c := core.New(emu)
 
 	RunBoot("Emerald (native cgo)", emu, func() {
-		ticker := time.NewTicker(16739 * time.Microsecond)
-		defer ticker.Stop()
-		for range ticker.C {
-			c.Frame(gba.ReadIORegister(emu.Memory, gba.KEYINPUT))
+		if false {
+			ticker := time.NewTicker(16739 * time.Microsecond)
+			defer ticker.Stop()
+			for range ticker.C {
+				c.Frame(gba.ReadIORegister(emu.Memory, gba.KEYINPUT))
+			}
+		} else {
+			for {
+				c.Frame(gba.ReadIORegister(emu.Memory, gba.KEYINPUT))
+			}
 		}
 	})
 }

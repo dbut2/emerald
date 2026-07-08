@@ -1,0 +1,12 @@
+--- a/naming_screen.c
++++ b/naming_screen.c
+@@ -702,6 +702,9 @@
+         SetMainCallback2(sNamingScreen->returnCallback);
+         DestroyTask(FindTaskIdByFunc(Task_NamingScreen));
+         FreeAllWindowBuffers();
++        // Host: retire callbacks that still read sNamingScreen this frame (sprites, VBlank) before freeing it.
++        ResetSpriteData();
++        SetVBlankCallback(NULL);
+         FREE_AND_SET_NULL(sNamingScreen);
+     }
+     return FALSE;
