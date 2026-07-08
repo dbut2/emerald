@@ -14,10 +14,12 @@ echo "[2/5] compiling data/*.s"
 "$ROOT/port/gendata.sh" >/dev/null
 
 echo "[3/5] compiling HLE (bios, mem, bridge)"
-for f in bios mem dma; do
-  clang -c -std=gnu11 $INCS $DEFS -Wno-everything "$ROOT/port/hle/$f.c" -o "$OBJ/_hle_$f.o"
+for f in bios mem dma m4a; do
+  clang -c -std=gnu11 $INCS $DEFS -Wno-everything "$ROOT/port/hle/$f.c" -o "$OBJ/_hle_$f.o" \
+    || { echo "HLE $f.c failed to compile"; exit 1; }
 done
-clang -c -std=gnu11 $INCS $DEFS -Wno-everything "$ROOT/port/bridge.c" -o "$OBJ/_bridge.o"
+clang -c -std=gnu11 $INCS $DEFS -Wno-everything "$ROOT/port/bridge.c" -o "$OBJ/_bridge.o" \
+  || { echo "bridge.c failed to compile"; exit 1; }
 printf 'extern void AgbMain(void);\nint main(void){AgbMain();return 0;}\n' | clang -x c -c - -o "$ROOT/port/build/_main.o"
 
 # Hardware subsystems stubbed for single-player boot: they poll/self-modify
