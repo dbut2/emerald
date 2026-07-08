@@ -1,0 +1,4 @@
+/pokeemerald/build/
+/port/build/
+*.o
+*.i
