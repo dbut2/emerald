@@ -14,7 +14,7 @@ echo "[2/5] compiling data/*.s"
 "$ROOT/port/gendata.sh" >/dev/null
 
 echo "[3/5] compiling HLE (bios, mem, bridge)"
-for f in bios mem; do
+for f in bios mem dma; do
   clang -c -std=gnu11 $INCS $DEFS -Wno-everything "$ROOT/port/hle/$f.c" -o "$OBJ/_hle_$f.o"
 done
 clang -c -std=gnu11 $INCS $DEFS -Wno-everything "$ROOT/port/bridge.c" -o "$OBJ/_bridge.o"

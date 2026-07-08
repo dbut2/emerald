@@ -109,9 +109,15 @@ Build + run: `./port/build.sh && ./port/build/pe_native` (writes frame PPMs to
   `port_frame_end` (active-low; baseline 0x3FF). Scripted A-taps drive
   title -> menu -> intro; game-state (callback2) transitions confirm it.
 - **Phase 3 — full PPU: PARTIAL.** Affine BGs (mode 1/2) added; title screen
-  renders. MISSING: windows (WIN0/1/OBJ), blend (BLDCNT/BLDALPHA/BLDY),
-  mosaic, affine sprites, per-scanline effects (HBlank/scanline_effect). These
-  cause the title-background artifacts.
+  renders cleanly. MISSING: windows (WIN0/1/OBJ), blend (BLDCNT/BLDALPHA/BLDY),
+  mosaic, affine sprites, per-scanline effects (HBlank/scanline_effect).
+  The title-background artifacts turned out **not** to be a PPU gap: (1) the
+  host had no DMA controller, so `DmaFill`/`DmaCopy` (bare register writes) were
+  no-ops — VRAM/palette went uncleared and `TransferPlttBuffer` never ran; now
+  HLE'd in `port/hle/dma.c` via a shadowed `DmaSetUnchecked`. (2) upstream
+  `global.h` stubs `INCBIN` to `{0}` under `__APPLE__`, which silently zeroed
+  every non-`INCGFX` asset (e.g. `gTitleScreenBgPalettes`); the shadow `global.h`
+  now un-stubs it so `preproc` emits the real bytes.
 - **Phase 4 — audio: NOT STARTED.** m4a engine + song data are stubbed
   (silent). Needs a host MP2K mixer driven once/frame (see agbplay/ipatix), or
   a portable m4a.c reimplementation, plus converting `sound/songs/*.s` to C
