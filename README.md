@@ -2,6 +2,10 @@
 
 Running **Pokémon Emerald** as native host machine code, driven from Go.
 
+> [!WARNING]
+> **Status: early and experimental.** It boots and runs up through the title
+> sequence and Prof. Birch's introduction, but is unstable beyond that.
+
 ![Pokémon Emerald's title screen, running as native code and rendered through Sapphire's PPU](docs/screenshot.png)
 
 This project compiles the [pret/pokeemerald](https://github.com/pret/pokeemerald)
