@@ -14,7 +14,7 @@ echo "[2/5] compiling data/*.s"
 "$ROOT/port/gendata.sh" >/dev/null
 
 echo "[3/5] compiling HLE (bios, mem, bridge)"
-for f in bios mem dma m4a; do
+for f in bios mem dma m4a flash; do
   clang -c -std=gnu11 $INCS $DEFS -Wno-everything "$ROOT/port/hle/$f.c" -o "$OBJ/_hle_$f.o" \
     || { echo "HLE $f.c failed to compile"; exit 1; }
 done
