@@ -14,4 +14,4 @@ DEFS="-DMODERN=1 -DNDEBUG -DPORT_HOST=1"
 # and the integrated assembler must resolve from $PE.
 clang -E $INCS $DEFS -Wno-trigraphs "$src" \
   | tools/preproc/preproc -i -g build/assets "$src" charmap.txt \
-  | clang -c -std=gnu11 -x c - -o "$out" -Wno-everything
+  | clang -c -std=gnu11 -g -fno-omit-frame-pointer -x c - -o "$out" -Wno-everything
