@@ -5,7 +5,7 @@ import (
 
 	"dbut.dev/sapphire/gba"
 
-	"github.com/dbut2/emerald/internal/core"
+	"dbut.dev/emerald/internal/core"
 )
 
 func main() {
