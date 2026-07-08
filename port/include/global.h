@@ -9,4 +9,16 @@
 #undef STATIC_ASSERT
 #define STATIC_ASSERT(expr, id)
 
+// global.h stubs INCBIN to {0} under __APPLE__ to "fool" IDE preproc, but the
+// host build compiles with Apple clang, so that stub silently zeroed every
+// INCBIN asset (e.g. gTitleScreenBgPalettes). Undo it: leave INCBIN unexpanded
+// so tools/preproc emits the real file bytes, as it already does for INCGFX.
+#undef INCBIN
+#undef INCBIN_U8
+#undef INCBIN_U16
+#undef INCBIN_U32
+#undef INCBIN_S8
+#undef INCBIN_S16
+#undef INCBIN_S32
+
 #endif // GUARD_PORT_GLOBAL_H
