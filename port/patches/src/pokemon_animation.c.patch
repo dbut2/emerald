@@ -1,0 +1,49 @@
+--- a/pokemon_animation.c
++++ b/pokemon_animation.c
+@@ -902,11 +902,21 @@
+ // as 0xFFFFXXXX instead of the desired 0x02YYXXXX.
+ // By dumb luck, this is not an issue in vanilla. However,
+ // changing the link order revealed this bug.
+-#if MODERN || defined(BUGFIX)
+-#define ANIM_SPRITE(taskId)   ((struct Sprite *)((gTasks[taskId].tPtrHi << 16) | ((u16)gTasks[taskId].tPtrLo)))
+-#else
+-#define ANIM_SPRITE(taskId)   ((struct Sprite *)((gTasks[taskId].tPtrHi << 16) | (gTasks[taskId].tPtrLo)))
+-#endif //MODERN || BUGFIX
++// Host port: pointers are 64-bit and gSprites is a >4 GB static, so the vanilla
++// hi/lo (16-bit) packing truncates. Stash the full pointer in unused data[6..9].
++#define SET_ANIM_SPRITE(taskId, sprite)                                     \
++    do {                                                                    \
++        uintptr_t p_ = (uintptr_t)(sprite);                                 \
++        gTasks[taskId].data[6] = p_;                                        \
++        gTasks[taskId].data[7] = p_ >> 16;                                  \
++        gTasks[taskId].data[8] = p_ >> 32;                                  \
++        gTasks[taskId].data[9] = p_ >> 48;                                  \
++    } while (0)
++#define ANIM_SPRITE(taskId)                                                 \
++    ((struct Sprite *)( (uintptr_t)(u16)gTasks[taskId].data[6]              \
++                      | (uintptr_t)(u16)gTasks[taskId].data[7] << 16        \
++                      | (uintptr_t)(u16)gTasks[taskId].data[8] << 32        \
++                      | (uintptr_t)(u16)gTasks[taskId].data[9] << 48 ))
+ 
+ static void Task_HandleMonAnimation(u8 taskId)
+ {
+@@ -941,8 +951,7 @@
+ void LaunchAnimationTaskForFrontSprite(struct Sprite *sprite, u8 frontAnimId)
+ {
+     u8 taskId = CreateTask(Task_HandleMonAnimation, 128);
+-    gTasks[taskId].tPtrHi = (u32)(sprite) >> 16;
+-    gTasks[taskId].tPtrLo = (u32)(sprite);
++    SET_ANIM_SPRITE(taskId, sprite);
+     gTasks[taskId].tAnimId = frontAnimId;
+ }
+ 
+@@ -958,8 +967,7 @@
+     u8 nature, taskId, animId, battler;
+ 
+     taskId = CreateTask(Task_HandleMonAnimation, 128);
+-    gTasks[taskId].tPtrHi = (u32)(sprite) >> 16;
+-    gTasks[taskId].tPtrLo = (u32)(sprite);
++    SET_ANIM_SPRITE(taskId, sprite);
+ 
+     battler = sprite->data[0];
+     nature = GetNature(&gPlayerParty[gBattlerPartyIndexes[battler]]);

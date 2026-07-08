@@ -8,6 +8,16 @@ INCS="-iquote $ROOT/port/include -I $PE/include -I $PE"
 DEFS="-DMODERN=1 -DNDEBUG -DPORT_HOST=1"
 
 echo "[1/5] compiling src/*.c"
+# Fail loudly if a host patch no longer applies (e.g. after a subtree bump),
+# so a silently-dropped fix can't reintroduce the bug it was patching.
+if [ -d "$ROOT/port/patches" ]; then
+  while IFS= read -r pf; do
+    tgt="${pf#"$ROOT"/port/patches/}"; tgt="$PE/${tgt%.patch}"
+    if ! patch -s --dry-run --fuzz=0 "$tgt" < "$pf" >/dev/null 2>&1; then
+      echo "ERROR: host patch does not apply: ${pf#"$ROOT"/}" >&2; exit 1
+    fi
+  done < <(find "$ROOT/port/patches" -name '*.patch')
+fi
 "$ROOT/port/sweep.sh" >/dev/null
 
 echo "[2/5] compiling data/*.s"
