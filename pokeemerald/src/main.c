@@ -409,16 +409,10 @@ static void IntrDummy(void)
 
 static void WaitForVBlank(void)
 {
-#if PORT_HOST
-    extern void port_frame_end(void);
-    VBlankIntr();
-    port_frame_end();
-#else
     gMain.intrCheck &= ~INTR_FLAG_VBLANK;
 
     while (!(gMain.intrCheck & INTR_FLAG_VBLANK))
         ;
-#endif
 }
 
 void SetTrainerHillVBlankCounter(u32 *counter)

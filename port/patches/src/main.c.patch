@@ -1,0 +1,18 @@
+--- a/main.c
++++ b/main.c
+@@ -409,10 +409,11 @@
+ 
+ static void WaitForVBlank(void)
+ {
+-    gMain.intrCheck &= ~INTR_FLAG_VBLANK;
+-
+-    while (!(gMain.intrCheck & INTR_FLAG_VBLANK))
+-        ;
++    // Host: cooperatively drive the vblank handler + present the frame, instead
++    // of spinning on an interrupt flag no hardware will ever set here.
++    extern void port_frame_end(void);
++    VBlankIntr();
++    port_frame_end();
+ }
+ 
+ void SetTrainerHillVBlankCounter(u32 *counter)
