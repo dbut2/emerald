@@ -19,7 +19,7 @@ func main() {
 	batch := flag.Int("turbo-batch", 1, "frames per bridge crossing while fast-forwarding")
 	flag.Parse()
 
-	emu := gba.NewEmu(make([]byte, 32*1024*1024))
+	emu := gba.NewEmu(nil, nil)
 	emu.FastForward = *turbo
 	c := core.New(emu)
 
