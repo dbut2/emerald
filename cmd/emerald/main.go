@@ -7,11 +7,14 @@ import (
 	"dbut.dev/sapphire/gba"
 
 	"dbut.dev/emerald/internal/core"
+	"dbut.dev/emerald/internal/crashreport"
 )
 
 const frameDur = 16739 * time.Microsecond
 
 func main() {
+	crashreport.Guard()
+
 	turbo := flag.Bool("turbo", false, "start with fast-forward enabled")
 	batch := flag.Int("turbo-batch", 1, "frames per bridge crossing while fast-forwarding")
 	flag.Parse()
