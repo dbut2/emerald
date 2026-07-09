@@ -3,7 +3,7 @@ module dbut.dev/emerald
 go 1.26
 
 require (
-	dbut.dev/sapphire v0.0.0
+	dbut.dev/sapphire v0.2.0-dev.706bdf4
 	fyne.io/fyne/v2 v2.7.4
 )
 
@@ -43,5 +43,3 @@ require (
 	golang.org/x/text v0.29.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace dbut.dev/sapphire => ../sapphire

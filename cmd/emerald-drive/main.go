@@ -40,7 +40,7 @@ func keysFor(spec string) uint16 {
 }
 
 func main() {
-	emu := gba.NewEmu(make([]byte, 32*1024*1024))
+	emu := gba.NewEmu(nil, nil)
 	c := core.New(emu)
 
 	var lines []string
