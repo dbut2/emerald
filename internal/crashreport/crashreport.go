@@ -71,8 +71,6 @@ func Guard() {
 	os.Exit(code)
 }
 
-// A zero signal means the child exited nonzero on its own — usually a Go
-// panic, which is worth filing.
 func interesting(sig syscall.Signal) bool {
 	switch sig {
 	case syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGQUIT:
