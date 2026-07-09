@@ -34,7 +34,14 @@ jobs:
       # go.mod pins `replace dbut.dev/sapphire => ../sapphire`, so every go command
       # fails without it. actions/checkout refuses paths outside the workspace.
       - name: Clone sapphire as a sibling
-        run: git clone --depth 1 https://github.com/dbut2/sapphire.git "$(dirname "$GITHUB_WORKSPACE")/sapphire"
+        run: |
+          SAP="$(dirname "$GITHUB_WORKSPACE")/sapphire"
+          git clone --depth 1 https://github.com/dbut2/sapphire.git "$SAP"
+          # gba/bios.go does `//go:embed bios.gba`, and the BIOS is copyrighted, so
+          # it is gitignored and absent from every clone. Without a file there, the
+          # embed fails and no package that imports gba will compile. Nothing in the
+          # checks below executes it, so a zero-filled placeholder is enough.
+          [ -f "$SAP/gba/bios.gba" ] || head -c 16384 /dev/zero > "$SAP/gba/bios.gba"
 
       - uses: actions/setup-go@v5
         with:
@@ -84,11 +91,20 @@ jobs:
 
             ## What you can and cannot verify here
 
-            The native core is macOS-only (`port/hle/crash.c` includes `mach-o/dyld.h`)
-            and `port/build.sh` needs the devkitARM `make modern` substrate, so this
-            Linux runner CANNOT build it. `libpe.a` does not exist here, which means
-            `go build ./cmd/...` will fail at link time. That is expected — do not try
-            to fix it, and do not run `port/build.sh`.
+            `go build ./cmd/...` CANNOT work here, for two independent reasons. Both
+            are expected. Do not try to fix either, and do not run `port/build.sh`.
+
+            1. The native core is macOS-only (`port/hle/crash.c` includes
+               `mach-o/dyld.h`) and `port/build.sh` needs the devkitARM `make modern`
+               substrate, so `libpe.a` does not exist on this Linux runner and the
+               link fails.
+            2. `cmd/emerald` calls `emu.LCD.CountFrame`, which exists only in unpushed
+               local commits of dbut.dev/sapphire. This job clones sapphire's published
+               `main`, where it is undefined. So `cmd/emerald` fails to compile before
+               it ever reaches the link step.
+
+            Neither is a bug in the crash you are fixing. If your fix must touch
+            `cmd/emerald`, say so in the PR body and note that it is uncompiled here.
 
             What you CAN and MUST run before opening a PR:
 
