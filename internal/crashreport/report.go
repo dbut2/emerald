@@ -13,8 +13,7 @@ const (
 	triageLabel = "crash"
 )
 
-// GitHub rejects issue URLs much beyond 8KB, so the body is trimmed to fit.
-const maxURL = 7500
+const maxURL = 6000
 
 type Details struct {
 	Log      string
@@ -46,8 +45,6 @@ func IssueURL(d Details) string {
 	return issueURL(title, body(d))
 }
 
-// GitHub silently drops `labels` for reporters without triage rights, so the
-// autofix workflow this label triggers only ever fires on a maintainer's crash.
 func issueURL(title, body string) string {
 	q := url.Values{"title": {title}, "body": {body}, "labels": {triageLabel}}
 	return "https://github.com/" + repo + "/issues/new?" + q.Encode()
