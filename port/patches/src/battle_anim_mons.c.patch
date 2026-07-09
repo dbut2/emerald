@@ -23,3 +23,33 @@
  }
  
  // Sprite data for TranslateSpriteInCircle/Ellipse and related
+@@ -1784,6 +1786,13 @@
+     AnimTask_BlendPalInAndOutSetup(&gTasks[task]);
+ }
+ 
++// Host: affineAnimCmds is a 64-bit pointer to static AffineAnimCmd data; the two
++// s16 slots StorePointerInVars packs it into truncate it to 32 bits, so
++// RunAffineAnimFromTaskData dereferenced a wild low-32-bit address and faulted.
++// Keep the pointer full-width in a side table keyed by task index (the only
++// writer/reader pair is Prepare/RunAffineAnimFromTaskData).
++static const union AffineAnimCmd *sTaskAffineAnimCmds[NUM_TASKS];
++
+ void PrepareAffineAnimInTaskData(struct Task *task, u8 spriteId, const union AffineAnimCmd *affineAnimCmds)
+ {
+     task->data[7] = 0;
+@@ -1793,13 +1802,13 @@
+     task->data[10] = 0x100;
+     task->data[11] = 0x100;
+     task->data[12] = 0;
+-    StorePointerInVars(&task->data[13], &task->data[14], affineAnimCmds);
++    sTaskAffineAnimCmds[task - gTasks] = affineAnimCmds;
+     PrepareBattlerSpriteForRotScale(spriteId, ST_OAM_OBJ_NORMAL);
+ }
+ 
+ bool8 RunAffineAnimFromTaskData(struct Task *task)
+ {
+-    sAnimTaskAffineAnim = &((union AffineAnimCmd *)LoadPointerFromVars(task->data[13], task->data[14]))[task->data[7]];
++    sAnimTaskAffineAnim = &((union AffineAnimCmd *)sTaskAffineAnimCmds[task - gTasks])[task->data[7]];
+     switch (sAnimTaskAffineAnim->type)
+     {
+     default:
