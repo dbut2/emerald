@@ -2,7 +2,7 @@ name: Crash Autofix
 
 on:
   issues:
-    types: [opened, labeled]
+    types: [labeled]
 
 concurrency:
   group: crash-autofix-${{ github.event.issue.number }}
@@ -10,9 +10,7 @@ concurrency:
 
 jobs:
   autofix:
-    if: |
-      (github.event.action == 'opened' && contains(github.event.issue.labels.*.name, 'crash')) ||
-      (github.event.action == 'labeled' && github.event.label.name == 'crash')
+    if: github.event.label.name == 'crash'
     runs-on: ubuntu-latest
     permissions:
       contents: write
