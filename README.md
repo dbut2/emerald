@@ -38,22 +38,10 @@ Keys: **Z**/**X** = A/B, arrows, **Enter** = Start, **Backspace** = Select,
 
 ## Crash reporting
 
-The game core is still unstable, so `emerald` supervises itself: when it dies,
-it captures the C backtrace and opens a prefilled
-[new issue](https://github.com/dbut2/emerald/issues/new) in your browser, filed
-as whoever you're signed into GitHub as. Nothing is submitted until you press
-**Submit** — read the log and add what you were doing first. The full log is
-written to a temporary file and its path is printed.
+On a crash, emerald opens a prefilled issue in your browser; nothing is sent
+until you submit it. The full log path is printed to stderr.
 
-Set `EMERALD_NO_CRASH_REPORT=1` to disable this and run unsupervised.
-
-Reports are tagged `crash`, which triggers
-[`.github/workflows/crash-autofix.yaml`](./.github/workflows/crash-autofix.yaml):
-Claude reads the backtrace, and either opens a PR that closes the issue on merge
-or comments explaining why it couldn't. GitHub only honours the `crash` tag for
-users with triage rights, so an outside reporter's issue waits for a maintainer
-to label it. CI can't build the native core on Linux, so those PRs are
-compile-checked on the Go side only and are never merged unreviewed.
+Set `EMERALD_NO_CRASH_REPORT=1` to run unsupervised.
 
 ## Status
 
