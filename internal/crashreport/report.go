@@ -53,8 +53,6 @@ func issueURL(title, body string) string {
 	return "https://github.com/" + repo + "/issues/new?" + q.Encode()
 }
 
-// Title names the fault and the frame it happened in, so duplicate crashes
-// collide on the issue list instead of reading as "Crash" over and over.
 func Title(d Details) string {
 	if m := panicRe.FindStringSubmatch(d.Log); m != nil {
 		return "Crash: panic: " + truncLine(m[1], 80)
@@ -121,10 +119,8 @@ func argsOrNone(args []string) string {
 
 const elision = "…truncated…"
 
-// excerpt keeps the region a reader needs: the crash marker and the C
-// backtrace that follows it, plus a little preceding PE_TRACE context. Naively
-// keeping the tail would keep only Go's register dump — the C handler prints
-// first, and Go's chained handler then floods stderr with every goroutine.
+// Anchored on the marker, not the tail: the C backtrace prints first, then Go's
+// chained handler buries it under every goroutine.
 func excerpt(log string, budget int) string {
 	if budget <= 0 {
 		return ""
@@ -139,8 +135,6 @@ func excerpt(log string, budget int) string {
 
 	pre := contextBefore(log[:at], 3)
 	post := log[at:]
-	// After the C backtrace, Go's chained handler dumps registers and every
-	// goroutine — none of it about the game thread. The full log keeps it.
 	if isC {
 		if loc := goDumpRe.FindStringIndex(post); loc != nil {
 			post = post[:loc[0]] + elision + "\n"

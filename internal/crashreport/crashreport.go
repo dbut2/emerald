@@ -1,12 +1,6 @@
-// Crash reporting for the native core.
-//
-// A fault in the game thread is handled in C (see port/hle/crash.c) and then
-// chained to Go's handler, which kills the process — no Go code, deferred or
-// otherwise, gets to run afterwards. So Guard re-execs the binary as a child
-// and supervises it from the parent: the parent tees the child's stderr, and
-// when the child dies abnormally it turns the captured output into a prefilled
-// github.com/dbut2/emerald issue and opens it in the browser, where GitHub
-// files it as whoever is signed in there.
+// A fault in the game thread is handled in C (port/hle/crash.c), which chains to
+// Go's handler and kills the process, so no in-process Go code survives to
+// report it. Hence the re-exec-and-supervise dance.
 package crashreport
 
 import (
@@ -27,9 +21,8 @@ const (
 	tailBytes  = 64 << 10
 )
 
-// Guard re-execs the current binary under a supervising parent and never
-// returns in that parent. In the child it returns immediately, so callers must
-// invoke it as the first statement in main, before any GUI or runtime setup.
+// Guard never returns in the parent. Call it as the first statement in main,
+// before any GUI or runtime setup.
 func Guard() {
 	if os.Getenv(childEnv) != "" || os.Getenv(disableEnv) != "" {
 		return

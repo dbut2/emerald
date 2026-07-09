@@ -37,8 +37,6 @@ func TestTitle(t *testing.T) {
 	}
 }
 
-// A real log sandwiches the crash: PE_TRACE noise before it, and Go's chained
-// handler dumping every goroutine after it.
 func realisticLog() string {
 	return strings.Repeat("PE_TRACE keys=0000 cb2=CB2_Overworld\n", 2000) +
 		segvLog +
