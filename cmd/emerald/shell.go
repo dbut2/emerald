@@ -6,6 +6,7 @@ package main
 // "don't touch Sapphire".
 
 import (
+	"image"
 	"sync"
 
 	"fyne.io/fyne/v2"
@@ -64,9 +65,15 @@ func (w *window) Start() {
 	cimg := canvas.NewImageFromImage(w.emu.LCD.Front())
 	cimg.ScaleMode = canvas.ImageScalePixels
 
+	// fyne reads asynchronously on its own thread while the game thread keeps
+	// overwriting Front(); snapshot per frame so a mid-copy read can't tear text.
 	w.emu.LCD.SetDraw(func() {
 		w.updateKeyInput()
+		src := w.emu.LCD.Front()
+		snap := image.NewRGBA(src.Bounds())
+		copy(snap.Pix, src.Pix)
 		fyne.Do(func() {
+			cimg.Image = snap
 			cimg.Refresh()
 		})
 	})

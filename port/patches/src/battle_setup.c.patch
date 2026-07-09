@@ -1,0 +1,22 @@
+--- a/battle_setup.c	2026-07-07 23:52:19
++++ b/battle_setup.c	2026-07-09 22:13:57
+@@ -1071,8 +1071,8 @@
+             data += 2;
+             break;
+         case TRAINER_PARAM_LOAD_VAL_32BIT:
+-            SetU32(specs->varPtr, TrainerBattleLoadArg32(data));
+-            data += 4;
++            SetPtr(specs->varPtr, T2_READ_PTR(data));
++            data += sizeof(void *);
+             break;
+         case TRAINER_PARAM_CLEAR_VAL_8BIT:
+             SetU8(specs->varPtr, 0);
+@@ -1081,7 +1081,7 @@
+             SetU16(specs->varPtr, 0);
+             break;
+         case TRAINER_PARAM_CLEAR_VAL_32BIT:
+-            SetU32(specs->varPtr, 0);
++            SetPtr(specs->varPtr, NULL);
+             break;
+         case TRAINER_PARAM_LOAD_SCRIPT_RET_ADDR:
+             SetPtr(specs->varPtr, data);

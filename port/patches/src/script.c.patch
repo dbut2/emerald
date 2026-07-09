@@ -1,0 +1,47 @@
+--- a/script.c
++++ b/script.c
+@@ -177,6 +177,26 @@
+     u32 value2 = *(ctx->scriptPtr++);
+     u32 value3 = *(ctx->scriptPtr++);
+     return (((((value3 << 8) + value2) << 8) + value1) << 8) + value0;
++}
++
++// Host: the data converter stores a NULL pointer operand as 4 zero bytes but a
++// real (reloc'd) pointer as sizeof(void*). The stream is thus self-describing:
++// a zero low word means a 4-byte NULL, otherwise a full pointer follows. This
++// disambiguates operands (e.g. `message`) that are a symbol in most scripts but
++// NULL in the msgbox std, without a per-opcode width table.
++const u8 *ScriptReadPtr(struct ScriptContext *ctx)
++{
++    u32 low;
++    __builtin_memcpy(&low, ctx->scriptPtr, sizeof(low));
++    if (low == 0)
++    {
++        ctx->scriptPtr += sizeof(low);
++        return NULL;
++    }
++    const u8 *ptr;
++    __builtin_memcpy(&ptr, ctx->scriptPtr, sizeof(ptr));
++    ctx->scriptPtr += sizeof(ptr);
++    return ptr;
+ }
+ 
+ void LockPlayerFieldControls(void)
+@@ -285,7 +305,7 @@
+             mapScripts++;
+             return T2_READ_PTR(mapScripts);
+         }
+-        mapScripts += 5;
++        mapScripts += 1 + sizeof(void *);
+     }
+ }
+ 
+@@ -321,7 +341,7 @@
+         // Run map script if vars are equal
+         if (VarGet(varIndex1) == VarGet(varIndex2))
+             return T2_READ_PTR(ptr);
+-        ptr += 4;
++        ptr += sizeof(void *);
+     }
+ }
+ 

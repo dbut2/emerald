@@ -1,0 +1,61 @@
+--- a/pokemon_storage_system.c
++++ b/pokemon_storage_system.c
+@@ -1982,12 +1982,19 @@
+     ProcessSpriteCopyRequests();
+     UnkUtil_Run();
+     TransferPlttBuffer();
+-    SetGpuReg(REG_OFFSET_BG2HOFS, sStorage->bg2_X);
++    // Host: this VBlank callback fires once more after Task_ChangeScreen frees
++    // sStorage (before the callback is replaced); guard the NULL deref.
++    if (sStorage != NULL)
++        SetGpuReg(REG_OFFSET_BG2HOFS, sStorage->bg2_X);
+ }
+ 
+ static void CB2_PokeStorage(void)
+ {
+     RunTasks();
++    // Host: Task_ChangeScreen may have just FreePokeStorageData()'d sStorage to
++    // NULL; the remaining per-frame calls deref it (benign on GBA, fatal here).
++    if (sStorage == NULL)
++        return;
+     DoScheduledBgTilemapCopiesToVram();
+     ScrollBackground();
+     UpdateCloseBoxButtonFlash();
+@@ -4469,7 +4476,10 @@
+     {
+         for (boxPosition = 0; boxPosition < IN_BOX_COUNT; boxPosition++)
+         {
+-            if (GetBoxMonDataAt(boxId, boxPosition, MON_DATA_HELD_ITEM) == ITEM_NONE)
++            // Host: empty slots have a NULL icon sprite; the GBA-benign NULL write
++            // faults here, so only touch slots that actually have an icon.
++            if (sStorage->boxMonsSprites[boxPosition] != NULL
++             && GetBoxMonDataAt(boxId, boxPosition, MON_DATA_HELD_ITEM) == ITEM_NONE)
+                 sStorage->boxMonsSprites[boxPosition]->oam.objMode = ST_OAM_OBJ_BLEND;
+         }
+     }
+@@ -5078,7 +5088,11 @@
+ 
+ static void SetMovingMonPriority(u8 priority)
+ {
+-    sStorage->movingMonSprite->oam.priority = priority;
++    // Host: called for the buttons/party cursor areas even with no mon grabbed,
++    // where movingMonSprite is NULL. A NULL sprite write is a harmless no-op on
++    // the GBA (no MMU) but faults on the host, so guard it.
++    if (sStorage->movingMonSprite != NULL)
++        sStorage->movingMonSprite->oam.priority = priority;
+ }
+ 
+ static void SpriteCB_HeldMon(struct Sprite *sprite)
+@@ -5112,6 +5126,12 @@
+         if (i == MAX_MON_ICONS)
+             return 0xFFFF;
+     }
++
++    // Host: GetMonIconTiles is NULL for species with no icon-table entry (gaps /
++    // egg / corrupt box species); the GBA copies harmless BIOS bytes from addr 0
++    // but the host faults, so bail with "no tiles" and let the slot get no icon.
++    if (GetMonIconTiles(species, TRUE) == NULL)
++        return 0xFFFF;
+ 
+     // Add species to icon list and load tiles
+     sStorage->iconSpeciesList[i] = species;

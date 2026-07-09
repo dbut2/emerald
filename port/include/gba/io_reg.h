@@ -4,7 +4,7 @@
 #include "../../../pokeemerald/include/gba/io_reg.h"
 
 #ifndef GBA_HOST_DELTA
-#define GBA_HOST_DELTA 0x3FE000000UL
+#define GBA_HOST_DELTA 0x1FFFFE000000UL
 #endif
 
 // REG_ADDR_*/REG_* derive from REG_BASE at use time, so rebasing it alone

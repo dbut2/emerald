@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"time"
 
 	"dbut.dev/sapphire/gba"
@@ -8,21 +9,42 @@ import (
 	"dbut.dev/emerald/internal/core"
 )
 
+const frameDur = 16739 * time.Microsecond
+
 func main() {
+	turbo := flag.Bool("turbo", false, "start with fast-forward enabled")
+	batch := flag.Int("turbo-batch", 1, "frames per bridge crossing while fast-forwarding")
+	flag.Parse()
+
 	emu := gba.NewEmu(make([]byte, 32*1024*1024))
+	emu.FastForward = *turbo
 	c := core.New(emu)
 
-	RunBoot("Emerald (native cgo)", emu, func() {
-		if false {
-			ticker := time.NewTicker(16739 * time.Microsecond)
-			defer ticker.Stop()
-			for range ticker.C {
-				c.Frame(gba.ReadIORegister(emu.Memory, gba.KEYINPUT))
+	RunBoot("Pokémon Emerald", emu, func() {
+		ticker := time.NewTicker(frameDur)
+		defer ticker.Stop()
+		lastDraw := time.Now()
+		for {
+			keys := gba.ReadIORegister(emu.Memory, gba.KEYINPUT)
+			if emu.FastForward {
+				c.StepN(keys, *batch)
+				if time.Since(lastDraw) >= frameDur {
+					lastDraw = time.Now()
+					for i := 1; i < *batch; i++ {
+						emu.LCD.CountFrame()
+					}
+					c.Render()
+				} else {
+					for i := 0; i < *batch; i++ {
+						emu.LCD.CountFrame()
+					}
+				}
+				continue
 			}
-		} else {
-			for {
-				c.Frame(gba.ReadIORegister(emu.Memory, gba.KEYINPUT))
-			}
+			<-ticker.C
+			c.Step(keys)
+			c.Render()
+			lastDraw = time.Now()
 		}
 	})
 }

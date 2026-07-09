@@ -1,0 +1,15 @@
+--- a/fldeff_dig.c
++++ b/fldeff_dig.c
+@@ -39,8 +39,10 @@
+ {
+     u8 taskId = CreateFieldMoveTask();
+ 
+-    gTasks[taskId].data[8] = (u32)StartDigFieldEffect >> 16;
+-    gTasks[taskId].data[9] = (u32)StartDigFieldEffect;
++    gTasks[taskId].data[8] = (uintptr_t)StartDigFieldEffect;
++    gTasks[taskId].data[9] = (uintptr_t)StartDigFieldEffect >> 16;
++    gTasks[taskId].data[10] = (uintptr_t)StartDigFieldEffect >> 32;
++    gTasks[taskId].data[11] = (uintptr_t)StartDigFieldEffect >> 48;
+     if (!ShouldDoBrailleDigEffect())
+         SetPlayerAvatarTransitionFlags(PLAYER_AVATAR_FLAG_ON_FOOT);
+     return FALSE;

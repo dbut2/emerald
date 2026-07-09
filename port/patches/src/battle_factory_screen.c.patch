@@ -1,0 +1,178 @@
+--- a/battle_factory_screen.c
++++ b/battle_factory_screen.c
+@@ -2461,6 +2461,10 @@
+ #define tFollowUpTaskState data[5]
+ #define tFollowUpTaskPtrHi data[6]
+ #define tFollowUpTaskPtrLo data[7]
++
++// Host: a follow-up TaskFunc is a 64-bit pointer; the two s16 hi/lo slots would
++// truncate it. Keep it full-width per task (only this file touches it).
++static TaskFunc sSwapFollowUpTask[NUM_TASKS];
+ 
+ static void Swap_Task_HandleYesNo(u8 taskId)
+ {
+@@ -2485,7 +2489,7 @@
+                 gTasks[taskId].tSaidYes = TRUE;
+                 hiPtr = gTasks[taskId].tFollowUpTaskPtrHi;
+                 loPtr = gTasks[taskId].tFollowUpTaskPtrLo;
+-                gTasks[taskId].func = (void *)((hiPtr << 16) | loPtr);
++                gTasks[taskId].func = sSwapFollowUpTask[taskId];
+             }
+             else
+             {
+@@ -2494,7 +2498,7 @@
+                 Swap_ErasePopupMenu(SWAP_WIN_YES_NO);
+                 hiPtr = gTasks[taskId].tFollowUpTaskPtrHi;
+                 loPtr = gTasks[taskId].tFollowUpTaskPtrLo;
+-                gTasks[taskId].func = (void *)((hiPtr << 16) | loPtr);
++                gTasks[taskId].func = sSwapFollowUpTask[taskId];
+             }
+         }
+         else if (JOY_NEW(B_BUTTON))
+@@ -2504,7 +2508,7 @@
+             Swap_ErasePopupMenu(SWAP_WIN_YES_NO);
+             hiPtr = gTasks[taskId].tFollowUpTaskPtrHi;
+             loPtr = gTasks[taskId].tFollowUpTaskPtrLo;
+-            gTasks[taskId].func = (void *)((hiPtr << 16) | loPtr);
++            gTasks[taskId].func = sSwapFollowUpTask[taskId];
+         }
+         else if (JOY_REPEAT(DPAD_UP))
+         {
+@@ -2530,8 +2534,7 @@
+     else
+     {
+         gTasks[taskId].tState = 0;
+-        gTasks[taskId].tFollowUpTaskPtrHi = (u32)(Swap_Task_HandleChooseMons) >> 16;
+-        gTasks[taskId].tFollowUpTaskPtrLo = (u32)(Swap_Task_HandleChooseMons);
++        sSwapFollowUpTask[taskId] = Swap_Task_HandleChooseMons;
+         gTasks[taskId].tFollowUpTaskState = STATE_CHOOSE_MONS_HANDLE_INPUT;
+         gTasks[taskId].func = Swap_Task_ScreenInfoTransitionIn;
+     }
+@@ -2544,8 +2547,7 @@
+         Swap_PrintOnInfoWindow(gText_QuitSwapping);
+         sFactorySwapScreen->monSwapped = FALSE;
+         gTasks[taskId].tState = STATE_YESNO_SHOW;
+-        gTasks[taskId].tFollowUpTaskPtrHi = (u32)(Swap_HandleQuitSwappingResponse) >> 16;
+-        gTasks[taskId].tFollowUpTaskPtrLo = (u32)(Swap_HandleQuitSwappingResponse);
++        sSwapFollowUpTask[taskId] = Swap_HandleQuitSwappingResponse;
+         gTasks[taskId].func = Swap_Task_HandleYesNo;
+     }
+ }
+@@ -2561,8 +2563,7 @@
+     else
+     {
+         gTasks[taskId].tState = 0;
+-        gTasks[taskId].tFollowUpTaskPtrHi = (u32)(Swap_Task_HandleChooseMons) >> 16;
+-        gTasks[taskId].tFollowUpTaskPtrLo = (u32)(Swap_Task_HandleChooseMons);
++        sSwapFollowUpTask[taskId] = Swap_Task_HandleChooseMons;
+         gTasks[taskId].tFollowUpTaskState = STATE_CHOOSE_MONS_HANDLE_INPUT;
+         gTasks[taskId].func = Swap_Task_ScreenInfoTransitionIn;
+     }
+@@ -2576,8 +2577,7 @@
+         Swap_PrintOnInfoWindow(gText_AcceptThisPkmn);
+         sFactorySwapScreen->monSwapped = TRUE;
+         gTasks[taskId].tState = STATE_YESNO_SHOW;
+-        gTasks[taskId].tFollowUpTaskPtrHi = (u32)(Swap_HandleAcceptMonResponse) >> 16;
+-        gTasks[taskId].tFollowUpTaskPtrLo = (u32)(Swap_HandleAcceptMonResponse);
++        sSwapFollowUpTask[taskId] = Swap_HandleAcceptMonResponse;
+         gTasks[taskId].func = Swap_Task_HandleYesNo;
+     }
+ }
+@@ -2612,8 +2612,7 @@
+                 CloseMonPic(sFactorySwapScreen->monPic, &sFactorySwapScreen->monPicAnimating, TRUE);
+                 Swap_ErasePopupMenu(SWAP_WIN_OPTIONS);
+                 gTasks[taskId].tState = 0;
+-                gTasks[taskId].tFollowUpTaskPtrHi = (u32)(Swap_Task_HandleChooseMons) >> 16;
+-                gTasks[taskId].tFollowUpTaskPtrLo = (u32)(Swap_Task_HandleChooseMons);
++                sSwapFollowUpTask[taskId] = Swap_Task_HandleChooseMons;
+                 gTasks[taskId].tFollowUpTaskState = STATE_CHOOSE_MONS_HANDLE_INPUT;
+                 gTasks[taskId].func = Swap_Task_ScreenInfoTransitionIn;
+             }
+@@ -2659,8 +2658,7 @@
+             sFactorySwapScreen->fadeSpeciesNameActive = FALSE;
+             Swap_PrintMonSpeciesAtFade();
+             Swap_EraseSpeciesWindow();
+-            gTasks[taskId].tFollowUpTaskPtrHi = (u32)(Swap_AskQuitSwapping) >> 16;
+-            gTasks[taskId].tFollowUpTaskPtrLo = (u32)(Swap_AskQuitSwapping);
++            sSwapFollowUpTask[taskId] = Swap_AskQuitSwapping;
+             gTasks[taskId].tState = 0;
+             gTasks[taskId].tFollowUpTaskState = 0;
+             gTasks[taskId].func = Swap_Task_ScreenInfoTransitionOut;
+@@ -3074,7 +3072,7 @@
+             gTasks[taskId].tState = gTasks[taskId].tFollowUpTaskState;
+             hiPtr = gTasks[taskId].tFollowUpTaskPtrHi;
+             loPtr = gTasks[taskId].tFollowUpTaskPtrLo;
+-            gTasks[taskId].func = (void *)((hiPtr << 16) | (loPtr));
++            gTasks[taskId].func = sSwapFollowUpTask[taskId];
+         }
+         break;
+     }
+@@ -3181,7 +3179,7 @@
+         gTasks[taskId].tState = gTasks[taskId].tFollowUpTaskState;
+         hiPtr = gTasks[taskId].tFollowUpTaskPtrHi;
+         loPtr = gTasks[taskId].tFollowUpTaskPtrLo;
+-        gTasks[taskId].func = (void *)((hiPtr << 16) | (loPtr));
++        gTasks[taskId].func = sSwapFollowUpTask[taskId];
+         break;
+     }
+ }
+@@ -3243,8 +3241,7 @@
+         break;
+     case 4:
+         gTasks[taskId].tState = 0;
+-        gTasks[taskId].tFollowUpTaskPtrHi = (u32)(Swap_Task_HandleChooseMons) >> 16;
+-        gTasks[taskId].tFollowUpTaskPtrLo = (u32)(Swap_Task_HandleChooseMons);
++        sSwapFollowUpTask[taskId] = Swap_Task_HandleChooseMons;
+         gTasks[taskId].tFollowUpTaskState = STATE_CHOOSE_MONS_HANDLE_INPUT;
+         gTasks[taskId].func = Swap_Task_ScreenInfoTransitionIn;
+         break;
+@@ -4006,8 +4003,7 @@
+     CloseMonPic(sFactorySwapScreen->monPic, &sFactorySwapScreen->monPicAnimating, TRUE);
+     Swap_ErasePopupMenu(SWAP_WIN_OPTIONS);
+     gTasks[taskId].tState = 0;
+-    gTasks[taskId].tFollowUpTaskPtrHi = (u32)(Swap_Task_HandleChooseMons) >> 16;
+-    gTasks[taskId].tFollowUpTaskPtrLo = (u32)(Swap_Task_HandleChooseMons);
++    sSwapFollowUpTask[taskId] = Swap_Task_HandleChooseMons;
+     gTasks[taskId].tFollowUpTaskState = STATE_CHOOSE_MONS_HANDLE_INPUT;
+     gTasks[taskId].func = Swap_Task_ScreenInfoTransitionIn;
+ }
+@@ -4020,8 +4016,7 @@
+ 
+ static void Swap_ActionCancel(u8 taskId)
+ {
+-    gTasks[taskId].tFollowUpTaskPtrHi = (u32)(Swap_AskQuitSwapping) >> 16;
+-    gTasks[taskId].tFollowUpTaskPtrLo = (u32)(Swap_AskQuitSwapping);
++    sSwapFollowUpTask[taskId] = Swap_AskQuitSwapping;
+     gTasks[taskId].tState = 0;
+     gTasks[taskId].tFollowUpTaskState = 0;
+     gTasks[taskId].func = Swap_Task_ScreenInfoTransitionOut;
+@@ -4029,8 +4024,7 @@
+ 
+ static void Swap_ActionPkmnForSwap(u8 taskId)
+ {
+-    gTasks[taskId].tFollowUpTaskPtrHi = (u32)(Swap_Task_SwitchPartyScreen) >> 16;
+-    gTasks[taskId].tFollowUpTaskPtrLo = (u32)(Swap_Task_SwitchPartyScreen);
++    sSwapFollowUpTask[taskId] = Swap_Task_SwitchPartyScreen;
+     gTasks[taskId].tFollowUpTaskState = 0;
+     gTasks[taskId].tState = 0;
+     gTasks[taskId].func = Swap_Task_ScreenInfoTransitionOut;
+@@ -4040,8 +4034,7 @@
+ {
+     if (!sFactorySwapScreen->inEnemyScreen)
+     {
+-        gTasks[taskId].tFollowUpTaskPtrHi = (u32)(Swap_Task_HandleMenu) >> 16;
+-        gTasks[taskId].tFollowUpTaskPtrLo = (u32)(Swap_Task_HandleMenu);
++        sSwapFollowUpTask[taskId] = Swap_Task_HandleMenu;
+         gTasks[taskId].tFollowUpTaskState = STATE_MENU_INIT;
+     }
+     else if (Swap_AlreadyHasSameSpecies(sFactorySwapScreen->cursorPos) == TRUE)
+@@ -4054,8 +4047,7 @@
+     }
+     else
+     {
+-        gTasks[taskId].tFollowUpTaskPtrHi = (u32)(Swap_AskAcceptMon) >> 16;
+-        gTasks[taskId].tFollowUpTaskPtrLo = (u32)(Swap_AskAcceptMon);
++        sSwapFollowUpTask[taskId] = Swap_AskAcceptMon;
+         gTasks[taskId].tFollowUpTaskState = 0;
+     }
+     gTasks[taskId].tState = 0;

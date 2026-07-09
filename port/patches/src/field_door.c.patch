@@ -1,0 +1,50 @@
+--- a/field_door.c
++++ b/field_door.c
+@@ -385,6 +385,21 @@
+ #define tCounter data[5]
+ #define tX data[6]
+ #define tY data[7]
++// Host: door frame/gfx are >4 GB static pointers; the vanilla hi/lo 16-bit pack
++// truncates them on LP64. Stash each full pointer across four free data slots.
++#define SET_DOOR_PTR(d, base, p)                    \
++    do {                                            \
++        uintptr_t p_ = (uintptr_t)(p);              \
++        (d)[(base) + 0] = p_;                       \
++        (d)[(base) + 1] = p_ >> 16;                 \
++        (d)[(base) + 2] = p_ >> 32;                 \
++        (d)[(base) + 3] = p_ >> 48;                 \
++    } while (0)
++#define GET_DOOR_PTR(d, base)                       \
++    ((uintptr_t)(u16)(d)[(base) + 0]                \
++   | (uintptr_t)(u16)(d)[(base) + 1] << 16          \
++   | (uintptr_t)(u16)(d)[(base) + 2] << 32          \
++   | (uintptr_t)(u16)(d)[(base) + 3] << 48)
+ 
+ // Draws a single frame of the door animation, or skips drawing to wait between frames.
+ // Returns FALSE when the final frame has been reached
+@@ -409,8 +424,8 @@
+ static void Task_AnimateDoor(u8 taskId)
+ {
+     u16 *data = (u16*) gTasks[taskId].data;
+-    struct DoorAnimFrame *frames = (struct DoorAnimFrame *)(tFramesHi << 16 | tFramesLo);
+-    struct DoorGraphics *gfx = (struct DoorGraphics *)(tGfxHi << 16 | tGfxLo);
++    struct DoorAnimFrame *frames = (struct DoorAnimFrame *)GET_DOOR_PTR(data, 8);
++    struct DoorGraphics *gfx = (struct DoorGraphics *)GET_DOOR_PTR(data, 12);
+ 
+     if (AnimateDoorFrame(gfx, frames, data) == FALSE)
+         DestroyTask(taskId);
+@@ -448,12 +463,9 @@
+         tX = x;
+         tY = y;
+ 
+-        tFramesLo = (u32)frames;
+-        tFramesHi = (u32)frames >> 16;
++        SET_DOOR_PTR(data, 8, frames);
++        SET_DOOR_PTR(data, 12, gfx);
+ 
+-        tGfxLo = (u32)gfx;
+-        tGfxHi = (u32)gfx >> 16;
+-
+         return taskId;
+     }
+ }

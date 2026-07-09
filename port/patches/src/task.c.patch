@@ -1,0 +1,66 @@
+--- a/task.c
++++ b/task.c
+@@ -136,20 +136,20 @@
+ {
+ }
+ 
++// Host: a followup TaskFunc is a 64-bit pointer that does not fit the two s16
++// data slots the GBA packed it into; keep it full-width in a side table keyed by
++// taskId (the only readers are these two functions).
++static TaskFunc sFollowupFuncs[NUM_TASKS];
++
+ void SetTaskFuncWithFollowupFunc(u8 taskId, TaskFunc func, TaskFunc followupFunc)
+ {
+-    u8 followupFuncIndex = NUM_TASK_DATA - 2; // Should be const.
+-
+-    gTasks[taskId].data[followupFuncIndex] = (s16)((u32)followupFunc);
+-    gTasks[taskId].data[followupFuncIndex + 1] = (s16)((u32)followupFunc >> 16); // Store followupFunc as two half-words in the data array.
++    sFollowupFuncs[taskId] = followupFunc;
+     gTasks[taskId].func = func;
+ }
+ 
+ void SwitchTaskToFollowupFunc(u8 taskId)
+ {
+-    u8 followupFuncIndex = NUM_TASK_DATA - 2; // Should be const.
+-
+-    gTasks[taskId].func = (TaskFunc)((u16)(gTasks[taskId].data[followupFuncIndex]) | (gTasks[taskId].data[followupFuncIndex + 1] << 16));
++    gTasks[taskId].func = sFollowupFuncs[taskId];
+ }
+ 
+ bool8 FuncIsActiveTask(TaskFunc func)
+@@ -186,19 +186,30 @@
+     return count;
+ }
+ 
+-void SetWordTaskArg(u8 taskId, u8 dataElem, u32 value)
++// Host: callers stash 64-bit pointers here that the two s16 slots would truncate.
++// Keep the full value in a side table, still mirror the low 32 bits into the
++// slots, and on read prefer the side table only when its low 32 bits still match
++// the slots — so code that pokes the slots directly (32-bit value users) wins.
++static uintptr_t sWordArgs[NUM_TASKS][NUM_TASK_DATA];
++
++void SetWordTaskArg(u8 taskId, u8 dataElem, uintptr_t value)
+ {
+     if (dataElem < NUM_TASK_DATA - 1)
+     {
+         gTasks[taskId].data[dataElem] = value;
+         gTasks[taskId].data[dataElem + 1] = value >> 16;
++        sWordArgs[taskId][dataElem] = value;
+     }
+ }
+ 
+-u32 GetWordTaskArg(u8 taskId, u8 dataElem)
++uintptr_t GetWordTaskArg(u8 taskId, u8 dataElem)
+ {
+     if (dataElem < NUM_TASK_DATA - 1)
+-        return (u16)gTasks[taskId].data[dataElem] | (gTasks[taskId].data[dataElem + 1] << 16);
+-    else
+-        return 0;
++    {
++        u32 lo = (u16)gTasks[taskId].data[dataElem] | (gTasks[taskId].data[dataElem + 1] << 16);
++        if ((u32)sWordArgs[taskId][dataElem] == lo)
++            return sWordArgs[taskId][dataElem];
++        return lo;
++    }
++    return 0;
+ }

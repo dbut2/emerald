@@ -4,8 +4,13 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PE="$ROOT/pokeemerald"
 OBJ="$ROOT/port/build/obj"
-INCS="-iquote $ROOT/port/include -I $PE/include -I $PE"
+INCS="-iquote $ROOT/port/include -iquote $ROOT/port/build/inc -I $ROOT/port/build/inc -I $PE"
 DEFS="-DMODERN=1 -DNDEBUG -DPORT_HOST=1"
+
+# A shadow pulled in transitively (window.h via include/text_window.h) resolves
+# to the original because -iquote loses to the including header's own dir; overlay
+# the shadows *into* a copy of the include tree so they always win.
+"$ROOT/port/mkinc.sh"
 
 echo "[1/5] compiling src/*.c"
 # Fail loudly if a host patch no longer applies (e.g. after a subtree bump),
@@ -24,7 +29,7 @@ echo "[2/5] compiling data/*.s"
 "$ROOT/port/gendata.sh" >/dev/null
 
 echo "[3/5] compiling HLE (bios, mem, bridge)"
-for f in bios mem dma m4a flash crash; do
+for f in bios mem dma m4a flash crash aitrace; do
   clang -c -std=gnu11 -g -fno-omit-frame-pointer $INCS $DEFS -Wno-everything "$ROOT/port/hle/$f.c" -o "$OBJ/_hle_$f.o" \
     || { echo "HLE $f.c failed to compile"; exit 1; }
 done
@@ -42,4 +47,9 @@ echo "[5/5] stubbing remaining undefined + archiving libpe.a"
 "$ROOT/port/genstubs.sh" >/dev/null
 rm -f "$ROOT/port/build/libpe.a"
 ar rcs "$ROOT/port/build/libpe.a" "$OBJ"/*.o
+
+# Go doesn't track libpe.a (a cgo LDFLAGS lib) as a build input, so `go run`/
+# `go build` would relink a cached binary against the stale core. Touch the cgo
+# package to invalidate that cache so a plain `go run`/`go build` picks this up.
+touch "$ROOT/internal/core/core.go"
 echo "built: port/build/libpe.a  (link with -Wl,-force_load)"

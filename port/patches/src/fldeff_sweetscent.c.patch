@@ -1,0 +1,15 @@
+--- a/fldeff_sweetscent.c
++++ b/fldeff_sweetscent.c
+@@ -42,8 +42,10 @@
+ 
+     SetWeatherScreenFadeOut();
+     taskId = CreateFieldMoveTask();
+-    gTasks[taskId].data[8] = (u32)StartSweetScentFieldEffect >> 16;
+-    gTasks[taskId].data[9] = (u32)StartSweetScentFieldEffect;
++    gTasks[taskId].data[8] = (uintptr_t)StartSweetScentFieldEffect;
++    gTasks[taskId].data[9] = (uintptr_t)StartSweetScentFieldEffect >> 16;
++    gTasks[taskId].data[10] = (uintptr_t)StartSweetScentFieldEffect >> 32;
++    gTasks[taskId].data[11] = (uintptr_t)StartSweetScentFieldEffect >> 48;
+     return FALSE;
+ }
+ 

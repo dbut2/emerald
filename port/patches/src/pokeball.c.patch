@@ -1,0 +1,27 @@
+--- a/pokeball.c
++++ b/pokeball.c
+@@ -669,7 +669,10 @@
+     u16 species = gTasks[taskId].tCryTaskSpecies;
+     u8 battler = gTasks[taskId].tCryTaskBattler;
+     u8 monSpriteId = gTasks[taskId].tCryTaskMonSpriteId;
+-    struct Pokemon *mon = (void *)(u32)((gTasks[taskId].tCryTaskMonPtr1 << 16) | (u16)(gTasks[taskId].tCryTaskMonPtr2));
++    struct Pokemon *mon = (struct Pokemon *)((uintptr_t)(u16)gTasks[taskId].data[5]
++                        | (uintptr_t)(u16)gTasks[taskId].data[6] << 16
++                        | (uintptr_t)(u16)gTasks[taskId].data[7] << 32
++                        | (uintptr_t)(u16)gTasks[taskId].data[8] << 48); // Host: full 64-bit mon pointer across data[5..8]
+ 
+     switch (gTasks[taskId].tCryTaskState)
+     {
+@@ -807,8 +810,10 @@
+         gTasks[taskId].tCryTaskWantedCry = wantedCryCase;
+         gTasks[taskId].tCryTaskBattler = battler;
+         gTasks[taskId].tCryTaskMonSpriteId = gBattlerSpriteIds[sprite->sBattler];
+-        gTasks[taskId].tCryTaskMonPtr1 = (u32)(mon) >> 16;
+-        gTasks[taskId].tCryTaskMonPtr2 = (u32)(mon);
++        gTasks[taskId].data[5] = (uintptr_t)mon;
++        gTasks[taskId].data[6] = (uintptr_t)mon >> 16;
++        gTasks[taskId].data[7] = (uintptr_t)mon >> 32;
++        gTasks[taskId].data[8] = (uintptr_t)mon >> 48;
+         gTasks[taskId].tCryTaskState = 0;
+     }
+ 
