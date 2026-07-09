@@ -36,13 +36,6 @@ go build -o emerald ./cmd/emerald && ./emerald
 Keys: **Z**/**X** = A/B, arrows, **Enter** = Start, **Backspace** = Select,
 **A**/**S** = L/R, **Space** = fast-forward.
 
-## Crash reporting
-
-On a crash, emerald opens a prefilled issue in your browser; nothing is sent
-until you submit it. The full log path is printed to stderr.
-
-Set `EMERALD_NO_CRASH_REPORT=1` to run unsupervised.
-
 ## Status
 
 Early and experimental. It boots and renders the intro and title screen and runs
