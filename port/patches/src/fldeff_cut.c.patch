@@ -1,0 +1,28 @@
+--- a/fldeff_cut.c
++++ b/fldeff_cut.c
+@@ -285,8 +285,10 @@
+ {
+     u8 taskId = CreateFieldMoveTask();
+ 
+-    gTasks[taskId].data[8] = (u32)StartCutGrassFieldEffect >> 16;
+-    gTasks[taskId].data[9] = (u32)StartCutGrassFieldEffect;
++    gTasks[taskId].data[8] = (uintptr_t)StartCutGrassFieldEffect;
++    gTasks[taskId].data[9] = (uintptr_t)StartCutGrassFieldEffect >> 16;
++    gTasks[taskId].data[10] = (uintptr_t)StartCutGrassFieldEffect >> 32;
++    gTasks[taskId].data[11] = (uintptr_t)StartCutGrassFieldEffect >> 48;
+     IncrementGameStat(GAME_STAT_USED_CUT);
+     return FALSE;
+ }
+@@ -301,8 +303,10 @@
+ {
+     u8 taskId = CreateFieldMoveTask();
+ 
+-    gTasks[taskId].data[8] = (u32)StartCutTreeFieldEffect >> 16;
+-    gTasks[taskId].data[9] = (u32)StartCutTreeFieldEffect;
++    gTasks[taskId].data[8] = (uintptr_t)StartCutTreeFieldEffect;
++    gTasks[taskId].data[9] = (uintptr_t)StartCutTreeFieldEffect >> 16;
++    gTasks[taskId].data[10] = (uintptr_t)StartCutTreeFieldEffect >> 32;
++    gTasks[taskId].data[11] = (uintptr_t)StartCutTreeFieldEffect >> 48;
+     IncrementGameStat(GAME_STAT_USED_CUT);
+     return FALSE;
+ }

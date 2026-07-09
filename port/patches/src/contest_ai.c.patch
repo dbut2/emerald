@@ -1,0 +1,882 @@
+--- a/contest_ai.c
++++ b/contest_ai.c
+@@ -419,7 +419,7 @@
+     if (eContestAI.scriptResult < gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_appeal_num_more_than(void)
+@@ -429,7 +429,7 @@
+     if (eContestAI.scriptResult > gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_appeal_num_eq(void)
+@@ -439,7 +439,7 @@
+     if (eContestAI.scriptResult == gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_appeal_num_not_eq(void)
+@@ -449,7 +449,7 @@
+     if (eContestAI.scriptResult != gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_get_excitement(void)
+@@ -465,7 +465,7 @@
+     if (eContestAI.scriptResult < gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_excitement_more_than(void)
+@@ -475,7 +475,7 @@
+     if (eContestAI.scriptResult > gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_excitement_eq(void)
+@@ -485,7 +485,7 @@
+     if (eContestAI.scriptResult == gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_excitement_not_eq(void)
+@@ -495,7 +495,7 @@
+     if (eContestAI.scriptResult != gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_get_user_order(void)
+@@ -511,7 +511,7 @@
+     if (eContestAI.scriptResult < gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_user_order_more_than(void)
+@@ -521,7 +521,7 @@
+     if (eContestAI.scriptResult > gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_user_order_eq(void)
+@@ -531,7 +531,7 @@
+     if (eContestAI.scriptResult == gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_user_order_not_eq(void)
+@@ -541,7 +541,7 @@
+     if (eContestAI.scriptResult != gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_get_user_condition(void)
+@@ -557,7 +557,7 @@
+     if (eContestAI.scriptResult < gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_user_condition_more_than(void)
+@@ -567,7 +567,7 @@
+     if (eContestAI.scriptResult > gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_user_condition_eq(void)
+@@ -577,7 +577,7 @@
+     if (eContestAI.scriptResult == gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_user_condition_not_eq(void)
+@@ -587,7 +587,7 @@
+     if (eContestAI.scriptResult != gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_get_points(void)
+@@ -603,7 +603,7 @@
+     if (eContestAI.scriptResult < (s16)T1_READ_16(gAIScriptPtr + 0))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+     else
+-        gAIScriptPtr += 6;
++        gAIScriptPtr += 10;
+ }
+ 
+ static void ContestAICmd_if_points_more_than(void)
+@@ -613,7 +613,7 @@
+     if (eContestAI.scriptResult > (s16)T1_READ_16(gAIScriptPtr + 0))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+     else
+-        gAIScriptPtr += 6;
++        gAIScriptPtr += 10;
+ }
+ 
+ static void ContestAICmd_if_points_eq(void)
+@@ -623,7 +623,7 @@
+     if (eContestAI.scriptResult == (s16)T1_READ_16(gAIScriptPtr + 0))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+     else
+-        gAIScriptPtr += 6;
++        gAIScriptPtr += 10;
+ }
+ 
+ static void ContestAICmd_if_points_not_eq(void)
+@@ -633,7 +633,7 @@
+     if (eContestAI.scriptResult != (s16)T1_READ_16(gAIScriptPtr + 0))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+     else
+-        gAIScriptPtr += 6;
++        gAIScriptPtr += 10;
+ }
+ 
+ static void ContestAICmd_get_preliminary_points(void)
+@@ -649,7 +649,7 @@
+     if (eContestAI.scriptResult < (s16)T1_READ_16(gAIScriptPtr + 0))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+     else
+-        gAIScriptPtr += 6;
++        gAIScriptPtr += 10;
+ }
+ 
+ static void ContestAICmd_if_preliminary_points_more_than(void)
+@@ -659,7 +659,7 @@
+     if (eContestAI.scriptResult > (s16)T1_READ_16(gAIScriptPtr + 0))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+     else
+-        gAIScriptPtr += 6;
++        gAIScriptPtr += 10;
+ }
+ 
+ static void ContestAICmd_if_preliminary_points_eq(void)
+@@ -669,7 +669,7 @@
+     if (eContestAI.scriptResult == (s16)T1_READ_16(gAIScriptPtr + 0))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+     else
+-        gAIScriptPtr += 6;
++        gAIScriptPtr += 10;
+ }
+ 
+ static void ContestAICmd_if_preliminary_points_not_eq(void)
+@@ -679,7 +679,7 @@
+     if (eContestAI.scriptResult != (s16)T1_READ_16(gAIScriptPtr + 0))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+     else
+-        gAIScriptPtr += 6;
++        gAIScriptPtr += 10;
+ }
+ 
+ static void ContestAICmd_get_contest_type(void)
+@@ -695,7 +695,7 @@
+     if (eContestAI.scriptResult == gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_contest_type_not_eq(void)
+@@ -705,7 +705,7 @@
+     if (eContestAI.scriptResult != gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_get_move_excitement(void)
+@@ -721,7 +721,7 @@
+     if (eContestAI.scriptResult < (s8)gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_move_excitement_more_than(void)
+@@ -731,7 +731,7 @@
+     if (eContestAI.scriptResult > (s8)gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_move_excitement_eq(void)
+@@ -741,7 +741,7 @@
+     if (eContestAI.scriptResult == (s8)gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_move_excitement_not_eq(void)
+@@ -751,7 +751,7 @@
+     if (eContestAI.scriptResult != (s8)gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_get_move_effect(void)
+@@ -769,7 +769,7 @@
+     if (eContestAI.scriptResult == gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_move_effect_not_eq(void)
+@@ -779,7 +779,7 @@
+     if (eContestAI.scriptResult != gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_get_move_effect_type(void)
+@@ -797,7 +797,7 @@
+     if (eContestAI.scriptResult == gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_move_effect_type_not_eq(void)
+@@ -807,7 +807,7 @@
+     if (eContestAI.scriptResult != gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_check_most_appealing_move(void)
+@@ -838,7 +838,7 @@
+     if (eContestAI.scriptResult != FALSE)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_check_most_jamming_move(void)
+@@ -869,7 +869,7 @@
+     if (eContestAI.scriptResult != FALSE)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_get_num_move_hearts(void)
+@@ -887,7 +887,7 @@
+     if (eContestAI.scriptResult < gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_num_move_hearts_more_than(void)
+@@ -897,7 +897,7 @@
+     if (eContestAI.scriptResult > gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_num_move_hearts_eq(void)
+@@ -907,7 +907,7 @@
+     if (eContestAI.scriptResult == gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_num_move_hearts_not_eq(void)
+@@ -917,7 +917,7 @@
+     if (eContestAI.scriptResult != gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_get_num_move_jam_hearts(void)
+@@ -935,7 +935,7 @@
+     if (eContestAI.scriptResult < gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_num_move_jam_hearts_more_than(void)
+@@ -945,7 +945,7 @@
+     if (eContestAI.scriptResult > gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_num_move_jam_hearts_eq(void)
+@@ -955,7 +955,7 @@
+     if (eContestAI.scriptResult == gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_num_move_jam_hearts_not_eq(void)
+@@ -965,7 +965,7 @@
+     if (eContestAI.scriptResult != gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_get_move_used_count(void)
+@@ -989,7 +989,7 @@
+     if (eContestAI.scriptResult < gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_most_used_count_more_than(void)
+@@ -999,7 +999,7 @@
+     if (eContestAI.scriptResult > gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_most_used_count_eq(void)
+@@ -1009,7 +1009,7 @@
+     if (eContestAI.scriptResult == gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_most_used_count_not_eq(void)
+@@ -1019,7 +1019,7 @@
+     if (eContestAI.scriptResult != gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_check_combo_starter(void)
+@@ -1055,7 +1055,7 @@
+     if (eContestAI.scriptResult)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_if_not_combo_starter(void)
+@@ -1065,7 +1065,7 @@
+     if (!eContestAI.scriptResult)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_check_combo_finisher(void)
+@@ -1101,7 +1101,7 @@
+     if (eContestAI.scriptResult)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_if_not_combo_finisher(void)
+@@ -1111,7 +1111,7 @@
+     if (!eContestAI.scriptResult)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_check_would_finish_combo(void)
+@@ -1136,7 +1136,7 @@
+     if (eContestAI.scriptResult)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_if_would_not_finish_combo(void)
+@@ -1146,7 +1146,7 @@
+     if (!eContestAI.scriptResult)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_get_condition(void)
+@@ -1164,7 +1164,7 @@
+     if (eContestAI.scriptResult < gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_condition_more_than(void)
+@@ -1174,7 +1174,7 @@
+     if (eContestAI.scriptResult > gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_condition_eq(void)
+@@ -1184,7 +1184,7 @@
+     if (eContestAI.scriptResult == gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_condition_not_eq(void)
+@@ -1194,7 +1194,7 @@
+     if (eContestAI.scriptResult != gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_get_used_combo_starter(void)
+@@ -1216,7 +1216,7 @@
+     if (eContestAI.scriptResult < gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_used_combo_starter_more_than(void)
+@@ -1226,7 +1226,7 @@
+     if (eContestAI.scriptResult > gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_used_combo_starter_eq(void)
+@@ -1236,7 +1236,7 @@
+     if (eContestAI.scriptResult == gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_used_combo_starter_not_eq(void)
+@@ -1246,7 +1246,7 @@
+     if (eContestAI.scriptResult != gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_check_can_participate(void)
+@@ -1266,7 +1266,7 @@
+     if (eContestAI.scriptResult)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_if_cannot_participate(void)
+@@ -1276,7 +1276,7 @@
+     if (!eContestAI.scriptResult)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_get_completed_combo(void)
+@@ -1294,7 +1294,7 @@
+     if (eContestAI.scriptResult)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_if_not_completed_combo(void)
+@@ -1304,7 +1304,7 @@
+     if (!eContestAI.scriptResult)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_get_points_diff(void)
+@@ -1322,7 +1322,7 @@
+     if (eContestAI.scriptResult < 0)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_if_points_less_than_mon(void)
+@@ -1332,7 +1332,7 @@
+     if (eContestAI.scriptResult > 0)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_if_points_eq_mon(void)
+@@ -1342,7 +1342,7 @@
+     if (eContestAI.scriptResult == 0)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_if_points_not_eq_mon(void)
+@@ -1352,7 +1352,7 @@
+     if (eContestAI.scriptResult != 0)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_get_preliminary_points_diff(void)
+@@ -1370,7 +1370,7 @@
+     if (eContestAI.scriptResult < 0)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_if_preliminary_points_less_than_mon(void)
+@@ -1380,7 +1380,7 @@
+     if (eContestAI.scriptResult > 0)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_if_preliminary_points_eq_mon(void)
+@@ -1390,7 +1390,7 @@
+     if (eContestAI.scriptResult == 0)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_if_preliminary_points_not_eq_mon(void)
+@@ -1400,7 +1400,7 @@
+     if (eContestAI.scriptResult != 0)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_get_used_moves_effect(void)
+@@ -1420,7 +1420,7 @@
+     if (eContestAI.scriptResult < gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_used_moves_effect_more_than(void)
+@@ -1430,7 +1430,7 @@
+     if (eContestAI.scriptResult > gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_used_moves_effect_eq(void)
+@@ -1440,7 +1440,7 @@
+     if (eContestAI.scriptResult == gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_used_moves_effect_not_eq(void)
+@@ -1450,7 +1450,7 @@
+     if (eContestAI.scriptResult != gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_get_used_moves_excitement(void)
+@@ -1470,7 +1470,7 @@
+     if (eContestAI.scriptResult < gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_used_moves_excitement_more_than(void)
+@@ -1480,7 +1480,7 @@
+     if (eContestAI.scriptResult > gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_used_moves_excitement_eq(void)
+@@ -1490,7 +1490,7 @@
+     if (eContestAI.scriptResult == gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_used_moves_excitement_not_eq(void)
+@@ -1500,7 +1500,7 @@
+     if (eContestAI.scriptResult != gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_get_used_moves_effect_type(void)
+@@ -1520,7 +1520,7 @@
+     if (eContestAI.scriptResult == gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_if_used_moves_effect_type_not_eq(void)
+@@ -1530,7 +1530,7 @@
+     if (eContestAI.scriptResult != gAIScriptPtr[0])
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 1);
+     else
+-        gAIScriptPtr += 5;
++        gAIScriptPtr += 9;
+ }
+ 
+ static void ContestAICmd_save_result(void)
+@@ -1569,7 +1569,7 @@
+     if (eContestAI.vars[gAIScriptPtr[1]] < T1_READ_16(gAIScriptPtr + 2))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 4);
+     else
+-        gAIScriptPtr += 8;
++        gAIScriptPtr += 12;
+ }
+ 
+ static void ContestAICmd_if_greater_than(void)
+@@ -1577,7 +1577,7 @@
+     if (eContestAI.vars[gAIScriptPtr[1]] > T1_READ_16(gAIScriptPtr + 2))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 4);
+     else
+-        gAIScriptPtr += 8;
++        gAIScriptPtr += 12;
+ }
+ 
+ static void ContestAICmd_if_eq(void)
+@@ -1585,7 +1585,7 @@
+     if (eContestAI.vars[gAIScriptPtr[1]] == T1_READ_16(gAIScriptPtr + 2))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 4);
+     else
+-        gAIScriptPtr += 8;
++        gAIScriptPtr += 12;
+ }
+ 
+ static void ContestAICmd_if_not_eq(void)
+@@ -1593,7 +1593,7 @@
+     if (eContestAI.vars[gAIScriptPtr[1]] != T1_READ_16(gAIScriptPtr + 2))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 4);
+     else
+-        gAIScriptPtr += 8;
++        gAIScriptPtr += 12;
+ }
+ 
+ static void ContestAICmd_if_less_than_var(void)
+@@ -1601,7 +1601,7 @@
+     if (eContestAI.vars[gAIScriptPtr[1]] < (eContestAI.vars[gAIScriptPtr[2]]))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 3);
+     else
+-        gAIScriptPtr += 7;
++        gAIScriptPtr += 11;
+ }
+ 
+ static void ContestAICmd_if_greater_than_var(void)
+@@ -1609,7 +1609,7 @@
+     if (eContestAI.vars[gAIScriptPtr[1]] > (eContestAI.vars[gAIScriptPtr[2]]))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 3);
+     else
+-        gAIScriptPtr += 7;
++        gAIScriptPtr += 11;
+ }
+ 
+ static void ContestAICmd_if_eq_var(void)
+@@ -1617,7 +1617,7 @@
+     if (eContestAI.vars[gAIScriptPtr[1]] == (eContestAI.vars[gAIScriptPtr[2]]))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 3);
+     else
+-        gAIScriptPtr += 7;
++        gAIScriptPtr += 11;
+ }
+ 
+ static void ContestAICmd_if_not_eq_var(void)
+@@ -1625,7 +1625,7 @@
+     if (eContestAI.vars[gAIScriptPtr[1]] != (eContestAI.vars[gAIScriptPtr[2]]))
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 3);
+     else
+-        gAIScriptPtr += 7;
++        gAIScriptPtr += 11;
+ }
+ 
+ // UB: Should just be comparing to gAIScriptPtr[1] in the functions below
+@@ -1640,7 +1640,7 @@
+ #endif
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+     else
+-        gAIScriptPtr += 6;
++        gAIScriptPtr += 10;
+ }
+ 
+ static void ContestAICmd_if_random_greater_than(void)
+@@ -1652,7 +1652,7 @@
+ #endif
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 2);
+     else
+-        gAIScriptPtr += 6;
++        gAIScriptPtr += 10;
+ }
+ 
+ static void ContestAICmd_goto(void)
+@@ -1719,7 +1719,7 @@
+     if (eContestAI.scriptResult)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_if_user_doesnt_have_exciting_move(void)
+@@ -1729,7 +1729,7 @@
+     if (!eContestAI.scriptResult)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ // BUG: This is checking if the user has a specific move, but when it's used in the AI script
+@@ -1771,7 +1771,7 @@
+     if (eContestAI.scriptResult)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }
+ 
+ static void ContestAICmd_if_user_doesnt_have_move(void)
+@@ -1781,5 +1781,5 @@
+     if (!eContestAI.scriptResult)
+         gAIScriptPtr = T1_READ_PTR(gAIScriptPtr + 0);
+     else
+-        gAIScriptPtr += 4;
++        gAIScriptPtr += 8;
+ }

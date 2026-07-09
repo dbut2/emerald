@@ -1,0 +1,19 @@
+--- a/sound.c
++++ b/sound.c
+@@ -605,11 +605,11 @@
+ 
+ bool8 IsSEPlaying(void)
+ {
+-    if ((gMPlayInfo_SE1.status & MUSICPLAYER_STATUS_PAUSE) && (gMPlayInfo_SE2.status & MUSICPLAYER_STATUS_PAUSE))
+-        return FALSE;
+-    if (!(gMPlayInfo_SE1.status & MUSICPLAYER_STATUS_TRACK) && !(gMPlayInfo_SE2.status & MUSICPLAYER_STATUS_TRACK))
+-        return FALSE;
+-    return TRUE;
++    // Host: m4a is HLE-stubbed, so an SE's TRACK status is set by PlaySE but never
++    // cleared by the (no-op) sound main loop, wedging IsSEPlaying at TRUE forever
++    // (froze the post-save "saved the game" dialog). No real audio plays, so report
++    // nothing playing.
++    return FALSE;
+ }
+ 
+ bool8 IsBGMPlaying(void)

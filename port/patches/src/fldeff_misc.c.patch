@@ -1,0 +1,41 @@
+--- a/fldeff_misc.c
++++ b/fldeff_misc.c
+@@ -593,8 +593,10 @@
+ {
+     u8 taskId = CreateFieldMoveTask();
+ 
+-    gTasks[taskId].data[8] = (u32)StartSecretBaseCaveFieldEffect >> 16;
+-    gTasks[taskId].data[9] = (u32)StartSecretBaseCaveFieldEffect;
++    gTasks[taskId].data[8] = (uintptr_t)StartSecretBaseCaveFieldEffect;
++    gTasks[taskId].data[9] = (uintptr_t)StartSecretBaseCaveFieldEffect >> 16;
++    gTasks[taskId].data[10] = (uintptr_t)StartSecretBaseCaveFieldEffect >> 32;
++    gTasks[taskId].data[11] = (uintptr_t)StartSecretBaseCaveFieldEffect >> 48;
+ 
+     return FALSE;
+ }
+@@ -653,8 +655,10 @@
+ {
+     u8 taskId = CreateFieldMoveTask();
+ 
+-    gTasks[taskId].data[8] = (u32)StartSecretBaseTreeFieldEffect >> 16;
+-    gTasks[taskId].data[9] = (u32)StartSecretBaseTreeFieldEffect;
++    gTasks[taskId].data[8] = (uintptr_t)StartSecretBaseTreeFieldEffect;
++    gTasks[taskId].data[9] = (uintptr_t)StartSecretBaseTreeFieldEffect >> 16;
++    gTasks[taskId].data[10] = (uintptr_t)StartSecretBaseTreeFieldEffect >> 32;
++    gTasks[taskId].data[11] = (uintptr_t)StartSecretBaseTreeFieldEffect >> 48;
+ 
+     return FALSE;
+ }
+@@ -727,8 +731,10 @@
+ {
+     u8 taskId = CreateFieldMoveTask();
+ 
+-    gTasks[taskId].data[8] = (u32)StartSecretBaseShrubFieldEffect >> 16;
+-    gTasks[taskId].data[9] = (u32)StartSecretBaseShrubFieldEffect;
++    gTasks[taskId].data[8] = (uintptr_t)StartSecretBaseShrubFieldEffect;
++    gTasks[taskId].data[9] = (uintptr_t)StartSecretBaseShrubFieldEffect >> 16;
++    gTasks[taskId].data[10] = (uintptr_t)StartSecretBaseShrubFieldEffect >> 32;
++    gTasks[taskId].data[11] = (uintptr_t)StartSecretBaseShrubFieldEffect >> 48;
+ 
+     return FALSE;
+ }

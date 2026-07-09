@@ -6,7 +6,10 @@ PE="$ROOT/pokeemerald"
 src="$1"; out="$2"
 cd "$PE"
 
-INCS="-iquote ../port/include -I include -I ."
+# -iquote src: patched files compile from a temp dir, so their `#include
+# "data/foo.h"` misses src/data/ and the whole TU would silently stub out.
+[ -d "$ROOT/port/build/inc" ] || "$ROOT/port/mkinc.sh"
+INCS="-iquote $ROOT/port/include -iquote $ROOT/port/build/inc -iquote src -I $ROOT/port/build/inc -I ."
 DEFS="-DMODERN=1 -DNDEBUG -DPORT_HOST=1"
 
 # Host-only fixes live as unified diffs under port/patches/, never edited into

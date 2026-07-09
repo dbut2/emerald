@@ -2,3 +2,5 @@
 /port/build/
 *.o
 *.i
+/emerald
+/emerald-play

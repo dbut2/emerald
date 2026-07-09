@@ -112,3 +112,12 @@ void m4aMPlayAllStop(void)
     gMPlayInfo_SE2.status = 0;
     gMPlayInfo_SE3.status = 0;
 }
+
+// Cries never synthesise on host; if left to the garbage-returning genstub,
+// IsPokemonCryPlaying can read non-zero and hang the battle intro's cry-duck
+// wait (Task_DuckBGMForPokemonCry) forever. Report cries as always finished.
+bool32 IsPokemonCryPlaying(struct MusicPlayerInfo *mplayInfo)
+{
+    (void)mplayInfo;
+    return FALSE;
+}

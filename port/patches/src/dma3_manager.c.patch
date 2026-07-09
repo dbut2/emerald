@@ -1,0 +1,39 @@
+--- a/dma3_manager.c
++++ b/dma3_manager.c
+@@ -99,6 +99,14 @@
+ {
+     int cursor;
+     int i = 0;
++#ifdef PORT_HOST
++    // Host has no DMA controller and no async VBlank to drain the queue during
++    // DoMapLoadLoop's spin, so copy immediately; IsDma3ManagerBusyWithBgCopy then
++    // reports idle. (The GBA DmaSet macro path writes inert DMA registers here.)
++    (void)mode;
++    __builtin_memcpy(dest, src, size);
++    return 0;
++#endif
+ 
+     sDma3ManagerLocked = TRUE;
+     cursor = sDma3RequestCursor;
+@@ -131,6 +139,21 @@
+ {
+     int cursor;
+     int i = 0;
++#ifdef PORT_HOST
++    if (mode == 1)
++    {
++        unsigned int *d = dest;
++        for (unsigned int j = 0; j < (unsigned int)size / 4; j++)
++            d[j] = (unsigned int)value;
++    }
++    else
++    {
++        unsigned short *d = dest;
++        for (unsigned int j = 0; j < (unsigned int)size / 2; j++)
++            d[j] = (unsigned short)value;
++    }
++    return 0;
++#endif
+ 
+     cursor = sDma3RequestCursor;
+     sDma3ManagerLocked = TRUE;

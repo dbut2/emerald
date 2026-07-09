@@ -7,6 +7,7 @@ package core
 #cgo LDFLAGS: ${SRCDIR}/../../port/build/libpe.a -lm
 extern void pe_init(void);
 extern void pe_run_frame(unsigned short keys);
+extern void pe_run_frames(unsigned short keys, int n);
 extern unsigned char *pe_base(void);
 */
 import "C"
@@ -41,7 +42,22 @@ func New(emu *gba.Emulator) *Core {
 }
 
 func (c *Core) Frame(keys uint16) {
+	c.Step(keys)
+	c.Render()
+}
+
+// Step advances the game one frame. Skipping it yields slow-motion, not
+// fast-forward: only Render may be skipped during frame-skip.
+func (c *Core) Step(keys uint16) {
 	C.pe_run_frame(C.ushort(keys))
+}
+
+// StepN advances n frames per bridge crossing, amortising the Go/C rendezvous.
+func (c *Core) StepN(keys uint16, n int) {
+	C.pe_run_frames(C.ushort(keys), C.int(n))
+}
+
+func (c *Core) Render() {
 	copy(c.io, c.ioSrc)
 	copy(c.pal, c.palSrc)
 	copy(c.vram, c.vramSrc)

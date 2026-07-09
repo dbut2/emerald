@@ -1,0 +1,13 @@
+--- a/battle_transition.c
++++ b/battle_transition.c
+@@ -1044,6 +1044,10 @@
+     if (gTasks[taskId].tTransitionDone)
+     {
+         DestroyTask(taskId);
++        // Host: a transition's _End destroys its task but leaves its VBlank
++        // callback installed; the port's frame model then fires one more VBlank
++        // dereferencing the freed sTransitionData. Clear it before the free.
++        SetVBlankCallback(NULL);
+         FREE_AND_SET_NULL(sTransitionData);
+         return TRUE;
+     }

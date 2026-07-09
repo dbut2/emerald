@@ -1,0 +1,31 @@
+--- a/menu.c
++++ b/menu.c
+@@ -1804,8 +1804,14 @@
+     if (ptr)
+     {
+         u8 taskId = CreateTask(task_free_buf_after_copying_tile_data_to_vram, 0);
++        uintptr_t p_ = (uintptr_t)ptr;
+         gTasks[taskId].data[0] = copy_decompressed_tile_data_to_vram(bgId, ptr, size, offset, mode);
+-        SetWordTaskArg(taskId, 1, (u32)ptr);
++        // Host: ptr is a >4 GB heap pointer; SetWordTaskArg keeps only 32 bits.
++        // Stash the full pointer across data[2..5] and read it back in the freer.
++        gTasks[taskId].data[2] = p_;
++        gTasks[taskId].data[3] = p_ >> 16;
++        gTasks[taskId].data[4] = p_ >> 32;
++        gTasks[taskId].data[5] = p_ >> 48;
+     }
+ }
+ 
+@@ -1813,7 +1819,11 @@
+ {
+     if (!CheckForSpaceForDma3Request(gTasks[taskId].data[0]))
+     {
+-        Free((void *)GetWordTaskArg(taskId, 1));
++        uintptr_t p_ = (uintptr_t)(u16)gTasks[taskId].data[2]
++                     | (uintptr_t)(u16)gTasks[taskId].data[3] << 16
++                     | (uintptr_t)(u16)gTasks[taskId].data[4] << 32
++                     | (uintptr_t)(u16)gTasks[taskId].data[5] << 48;
++        Free((void *)p_);
+         DestroyTask(taskId);
+     }
+ }

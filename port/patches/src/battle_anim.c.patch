@@ -1,0 +1,80 @@
+--- a/battle_anim.c
++++ b/battle_anim.c
+@@ -366,8 +366,8 @@
+     s16 subpriority;
+ 
+     sBattleAnimScriptPtr++;
+-    template = (const struct SpriteTemplate *)(T2_READ_32(sBattleAnimScriptPtr));
+-    sBattleAnimScriptPtr += 4;
++    template = (const struct SpriteTemplate *)T2_READ_PTR(sBattleAnimScriptPtr);
++    sBattleAnimScriptPtr += sizeof(void *);
+ 
+     argVar = sBattleAnimScriptPtr[0];
+     sBattleAnimScriptPtr++;
+@@ -421,8 +421,8 @@
+ 
+     sBattleAnimScriptPtr++;
+ 
+-    taskFunc = (TaskFunc)T2_READ_32(sBattleAnimScriptPtr);
+-    sBattleAnimScriptPtr += 4;
++    taskFunc = (TaskFunc)T2_READ_PTR(sBattleAnimScriptPtr);
++    sBattleAnimScriptPtr += sizeof(void *);
+ 
+     taskPriority = sBattleAnimScriptPtr[0];
+     sBattleAnimScriptPtr++;
+@@ -1043,7 +1043,7 @@
+ static void Cmd_call(void)
+ {
+     sBattleAnimScriptPtr++;
+-    sBattleAnimScriptRetAddr = sBattleAnimScriptPtr + 4;
++    sBattleAnimScriptRetAddr = sBattleAnimScriptPtr + sizeof(void *);
+     sBattleAnimScriptPtr = T2_READ_PTR(sBattleAnimScriptPtr);
+ }
+ 
+@@ -1074,7 +1074,7 @@
+ {
+     sBattleAnimScriptPtr++;
+     if (gAnimMoveTurn & 1)
+-        sBattleAnimScriptPtr += 4;
++        sBattleAnimScriptPtr += sizeof(void *);
+     sBattleAnimScriptPtr = T2_READ_PTR(sBattleAnimScriptPtr);
+ }
+ 
+@@ -1088,7 +1088,7 @@
+     if (toCheck == gAnimMoveTurn)
+         sBattleAnimScriptPtr = T2_READ_PTR(sBattleAnimScriptPtr);
+     else
+-        sBattleAnimScriptPtr += 4;
++        sBattleAnimScriptPtr += sizeof(void *);
+ }
+ 
+ static void Cmd_goto(void)
+@@ -1618,8 +1618,8 @@
+     s32 i;
+ 
+     sBattleAnimScriptPtr++;
+-    func = (TaskFunc)T2_READ_32(sBattleAnimScriptPtr);
+-    sBattleAnimScriptPtr += 4;
++    func = (TaskFunc)T2_READ_PTR(sBattleAnimScriptPtr);
++    sBattleAnimScriptPtr += sizeof(void *);
+     numArgs = sBattleAnimScriptPtr[0];
+     sBattleAnimScriptPtr++;
+     for (i = 0; i < numArgs; i++)
+@@ -1672,7 +1672,7 @@
+     if (valueToCheck == gBattleAnimArgs[argId])
+         sBattleAnimScriptPtr = T2_READ_PTR(sBattleAnimScriptPtr + 3);
+     else
+-        sBattleAnimScriptPtr += 7;
++        sBattleAnimScriptPtr += 3 + sizeof(void *);
+ }
+ 
+ static void Cmd_jumpifcontest(void)
+@@ -1681,7 +1681,7 @@
+     if (IsContest())
+         sBattleAnimScriptPtr = T2_READ_PTR(sBattleAnimScriptPtr);
+     else
+-        sBattleAnimScriptPtr += 4;
++        sBattleAnimScriptPtr += sizeof(void *);
+ }
+ 
+ static void Cmd_splitbgprio(void)

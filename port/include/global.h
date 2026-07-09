@@ -29,4 +29,19 @@
 #undef _
 #undef __
 
+// T*_READ_PTR read a pointer from a byte stream (map scripts, converted data
+// tables). The data converter stores those pointers at sizeof(void*), so a
+// 4-byte T*_READ_32 truncates on LP64; read pointer-width instead. Callers that
+// also stride manually over such tables must step by sizeof(void*), not 4.
+static inline void *port_read_ptr(const void *p)
+{
+    void *r;
+    __builtin_memcpy(&r, p, sizeof(r));
+    return r;
+}
+#undef T1_READ_PTR
+#define T1_READ_PTR(ptr) ((u8 *)port_read_ptr(ptr))
+#undef T2_READ_PTR
+#define T2_READ_PTR(ptr) ((void *)port_read_ptr(ptr))
+
 #endif // GUARD_PORT_GLOBAL_H

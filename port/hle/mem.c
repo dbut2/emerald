@@ -8,7 +8,7 @@
 // addresses, so a high MAP_FIXED base is required.
 #define GBA_LO   0x02000000UL
 #define GBA_SPAN 0x0E000000UL
-#define HOST_BASE 0x400000000UL
+#define HOST_BASE 0x200000000000UL
 
 void gba_mem_init(void)
 {

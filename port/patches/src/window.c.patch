@@ -1,0 +1,20 @@
+--- a/window.c
++++ b/window.c
+@@ -555,7 +555,7 @@
+     }
+ }
+ 
+-u32 GetWindowAttribute(u8 windowId, u8 attributeId)
++uintptr_t GetWindowAttribute(u8 windowId, u8 attributeId)
+ {
+     switch (attributeId)
+     {
+@@ -574,7 +574,7 @@
+     case WINDOW_BASE_BLOCK:
+         return gWindows[windowId].window.baseBlock;
+     case WINDOW_TILE_DATA:
+-        return (u32)(gWindows[windowId].tileData);
++        return (uintptr_t)(gWindows[windowId].tileData);
+     default:
+         return 0;
+     }

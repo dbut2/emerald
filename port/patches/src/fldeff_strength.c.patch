@@ -1,0 +1,15 @@
+--- a/fldeff_strength.c
++++ b/fldeff_strength.c
+@@ -36,8 +36,10 @@
+ bool8 FldEff_UseStrength(void)
+ {
+     u8 taskId = CreateFieldMoveTask();
+-    gTasks[taskId].data[8] = (u32)StartStrengthFieldEffect >> 16;
+-    gTasks[taskId].data[9] = (u32)StartStrengthFieldEffect;
++    gTasks[taskId].data[8] = (uintptr_t)StartStrengthFieldEffect;
++    gTasks[taskId].data[9] = (uintptr_t)StartStrengthFieldEffect >> 16;
++    gTasks[taskId].data[10] = (uintptr_t)StartStrengthFieldEffect >> 32;
++    gTasks[taskId].data[11] = (uintptr_t)StartStrengthFieldEffect >> 48;
+     GetMonNickname(&gPlayerParty[gFieldEffectArguments[0]], gStringVar1);
+     return FALSE;
+ }

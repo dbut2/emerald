@@ -1,0 +1,40 @@
+--- a/shop.c
++++ b/shop.c
+@@ -412,12 +412,16 @@
+ #define tListTaskId data[7]
+ #define tCallbackHi data[8]
+ #define tCallbackLo data[9]
++
++// Host: a MainCallback is a 64-bit pointer, too wide to pack into the two 16-bit
++// tCallbackHi/Lo task slots (that truncation jumps CallCallbacks to garbage).
++// Only one buy/sell transition runs at a time, so hold it full-width here.
++static MainCallback sGoToBuyOrSellMenuCallback;
+ 
+ static void Task_HandleShopMenuBuy(u8 taskId)
+ {
+     s16 *data = gTasks[taskId].data;
+-    tCallbackHi = (u32)CB2_InitBuyMenu >> 16;
+-    tCallbackLo = (u32)CB2_InitBuyMenu;
++    sGoToBuyOrSellMenuCallback = CB2_InitBuyMenu;
+     gTasks[taskId].func = Task_GoToBuyOrSellMenu;
+     FadeScreen(FADE_TO_BLACK, 0);
+ }
+@@ -425,8 +429,7 @@
+ static void Task_HandleShopMenuSell(u8 taskId)
+ {
+     s16 *data = gTasks[taskId].data;
+-    tCallbackHi = (u32)CB2_GoToSellMenu >> 16;
+-    tCallbackLo = (u32)CB2_GoToSellMenu;
++    sGoToBuyOrSellMenuCallback = CB2_GoToSellMenu;
+     gTasks[taskId].func = Task_GoToBuyOrSellMenu;
+     FadeScreen(FADE_TO_BLACK, 0);
+ }
+@@ -455,7 +458,7 @@
+     if (!gPaletteFade.active)
+     {
+         DestroyTask(taskId);
+-        SetMainCallback2((MainCallback)((u16)tCallbackHi << 16 | (u16)tCallbackLo));
++        SetMainCallback2(sGoToBuyOrSellMenuCallback);
+     }
+ }
+ 

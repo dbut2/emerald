@@ -1,0 +1,27 @@
+--- a/fldeff_rocksmash.c
++++ b/fldeff_rocksmash.c
+@@ -109,7 +109,10 @@
+ static void Task_DoFieldMove_RunFunc(u8 taskId)
+ {
+     // The function for the field move to do is stored in halves across data[8] and data[9]
+-    void (*fieldMoveFunc)(void) = (void (*)(void))(((u16)gTasks[taskId].data[8] << 16) | (u16)gTasks[taskId].data[9]);
++    void (*fieldMoveFunc)(void) = (void (*)(void))((uintptr_t)(u16)gTasks[taskId].data[8]
++        | (uintptr_t)(u16)gTasks[taskId].data[9] << 16
++        | (uintptr_t)(u16)gTasks[taskId].data[10] << 32
++        | (uintptr_t)(u16)gTasks[taskId].data[11] << 48);
+ 
+     fieldMoveFunc();
+     gPlayerAvatar.preventStep = FALSE;
+@@ -151,8 +154,10 @@
+ {
+     u8 taskId = CreateFieldMoveTask();
+ 
+-    gTasks[taskId].data[8] = (u32)FieldMove_RockSmash >> 16;
+-    gTasks[taskId].data[9] = (u32)FieldMove_RockSmash;
++    gTasks[taskId].data[8] = (uintptr_t)FieldMove_RockSmash;
++    gTasks[taskId].data[9] = (uintptr_t)FieldMove_RockSmash >> 16;
++    gTasks[taskId].data[10] = (uintptr_t)FieldMove_RockSmash >> 32;
++    gTasks[taskId].data[11] = (uintptr_t)FieldMove_RockSmash >> 48;
+     IncrementGameStat(GAME_STAT_USED_ROCK_SMASH);
+     return FALSE;
+ }

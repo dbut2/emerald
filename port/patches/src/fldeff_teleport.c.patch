@@ -1,0 +1,15 @@
+--- a/fldeff_teleport.c
++++ b/fldeff_teleport.c
+@@ -31,8 +31,10 @@
+ bool8 FldEff_UseTeleport(void)
+ {
+     u8 taskId = CreateFieldMoveTask();
+-    gTasks[taskId].data[8] = (u32)StartTeleportFieldEffect >> 16;
+-    gTasks[taskId].data[9] = (u32)StartTeleportFieldEffect;
++    gTasks[taskId].data[8] = (uintptr_t)StartTeleportFieldEffect;
++    gTasks[taskId].data[9] = (uintptr_t)StartTeleportFieldEffect >> 16;
++    gTasks[taskId].data[10] = (uintptr_t)StartTeleportFieldEffect >> 32;
++    gTasks[taskId].data[11] = (uintptr_t)StartTeleportFieldEffect >> 48;
+     SetPlayerAvatarTransitionFlags(PLAYER_AVATAR_FLAG_ON_FOOT);
+     return FALSE;
+ }

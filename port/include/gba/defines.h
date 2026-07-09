@@ -14,7 +14,7 @@
 #define COMMON_DATA
 
 #ifndef GBA_HOST_DELTA
-#define GBA_HOST_DELTA 0x3FE000000UL
+#define GBA_HOST_DELTA 0x1FFFFE000000UL
 #endif
 
 // Rebase the base region addresses; derived macros (BG_VRAM, OBJ_PLTT, ...)
